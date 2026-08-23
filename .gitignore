@@ -1,0 +1,7 @@
+venv/
+cache/raw/
+cache/raw_2k/
+__pycache__/
+*.pyc
+.DS_Store
+.bin/

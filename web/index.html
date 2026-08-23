@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NBA Time Machine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">NBA</span>
+      <span class="brand-name">Time Machine</span>
+    </div>
+    <nav id="phase-nav" class="phase-nav">
+      <span class="phase-step" data-phase="franchise">Franchise</span>
+      <span class="phase-step" data-phase="draft">Draft</span>
+      <span class="phase-step" data-phase="hub">Team Hub</span>
+      <span class="phase-step" data-phase="season">Season</span>
+      <span class="phase-step" data-phase="playoffs">Playoffs</span>
+    </nav>
+    <div id="topbar-stat" class="topbar-stat"></div>
+  </header>
+
+  <main id="app">
+
+    <!-- ============================= PHASE: MODE SELECT ============================= -->
+    <section id="phase-mode" class="phase">
+      <section class="mode-panel">
+        <h2>How are you playing?</h2>
+        <div class="mode-options">
+          <button id="mode-single-btn" class="mode-card">
+            <div class="mode-card-title">Single Player</div>
+            <div class="mode-card-sub">Draft one franchise, run a full 82-game season and playoffs.</div>
+          </button>
+          <button id="mode-multi-btn" class="mode-card">
+            <div class="mode-card-title">Quick League</div>
+            <div class="mode-card-sub">Up to 5 players draft their own franchise via a shareable link, then face off head-to-head.</div>
+          </button>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============================= PHASE: QUICK LEAGUE START ============================= -->
+    <section id="phase-mp-start" class="phase hidden">
+      <section class="mp-start-grid">
+        <div class="mp-start-card">
+          <h2>Create a League</h2>
+          <p>You'll get a shareable link — send it to up to 4 friends.</p>
+          <input id="mp-create-name-input" type="text" class="franchise-name-input" placeholder="Your name" maxlength="40">
+          <button id="mp-create-btn" class="btn primary full">Create League</button>
+        </div>
+        <div class="mp-start-card">
+          <h2>Join a League</h2>
+          <p>Paste the code a friend sent you.</p>
+          <input id="mp-join-code-input" type="text" class="franchise-name-input mp-code-input" placeholder="League code" maxlength="6">
+          <input id="mp-join-name-input" type="text" class="franchise-name-input" placeholder="Your name" maxlength="40">
+          <button id="mp-join-btn" class="btn primary full">Join League</button>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============================= PHASE: QUICK LEAGUE LOBBY ============================= -->
+    <section id="phase-mp-lobby" class="phase hidden">
+      <section class="mp-lobby-head">
+        <h2>League <span id="mp-lobby-code" class="mp-code"></span></h2>
+        <div class="mp-link-row">
+          <input id="mp-lobby-link" class="mp-link-input" readonly>
+          <button id="mp-copy-lobby-link-btn" class="btn ghost small">Copy link</button>
+        </div>
+        <div id="mp-lobby-players" class="mp-player-list"></div>
+      </section>
+      <section id="mp-franchise-pick" class="franchise-panel">
+        <h2>Choose Your Franchise</h2>
+        <div id="mp-franchise-grid" class="franchise-grid"></div>
+        <input id="mp-franchise-name-input" type="text" class="franchise-name-input" placeholder="Name your team" maxlength="40">
+        <button id="mp-franchise-confirm-btn" class="btn primary full" disabled>Begin Draft</button>
+      </section>
+    </section>
+
+    <!-- ============================= PHASE: QUICK LEAGUE WAITING / DUELS ============================= -->
+    <section id="phase-mp-waiting" class="phase hidden">
+      <section class="mp-lobby-head">
+        <h2>League <span id="mp-wait-code" class="mp-code"></span></h2>
+        <div class="mp-link-row">
+          <input id="mp-wait-link" class="mp-link-input" readonly>
+          <button id="mp-copy-wait-link-btn" class="btn ghost small">Copy link</button>
+        </div>
+        <div id="mp-wait-players" class="mp-player-list"></div>
+      </section>
+      <section class="mp-duels-panel">
+        <h2>Your Duels</h2>
+        <div id="mp-duels-list"></div>
+        <div id="mp-standings-block"></div>
+      </section>
+    </section>
+
+    <!-- ============================= PHASE: QUICK LEAGUE DUEL ============================= -->
+    <section id="phase-mp-duel" class="phase hidden">
+      <div id="mp-duel-body" class="playoffs-hero"></div>
+    </section>
+
+    <!-- ============================= PHASE 0: FRANCHISE ============================= -->
+    <section id="phase-franchise" class="phase hidden">
+      <section class="franchise-panel">
+        <h2>Choose Your Franchise</h2>
+        <p class="franchise-intro">Pick the real NBA franchise you'll run — its conference, division, colors and logo carry through the whole season. Then name your team.</p>
+        <div id="franchise-grid" class="franchise-grid"></div>
+      </section>
+      <section class="franchise-name-panel">
+        <h2>Name Your Team</h2>
+        <input id="franchise-name-input" type="text" class="franchise-name-input" placeholder="e.g. The Sunset Riders" maxlength="40">
+        <div id="franchise-selected-preview" class="franchise-selected-preview hidden"></div>
+        <button id="franchise-confirm-btn" class="btn primary full" disabled>Begin Draft</button>
+      </section>
+    </section>
+
+    <!-- ============================= PHASE 1: DRAFT ============================= -->
+    <section id="phase-draft" class="phase hidden">
+      <div id="draft-franchise-banner" class="draft-franchise-banner"></div>
+      <section class="roster-board">
+        <h2>Starters</h2>
+        <div id="starters" class="slot-row"></div>
+        <h2>Bench</h2>
+        <div id="bench" class="slot-row"></div>
+        <h2>Head Coach</h2>
+        <div id="coach-slot" class="coach-slot-row"></div>
+      </section>
+
+      <section class="draft-panel">
+        <div id="draw-empty" class="draw-empty">
+          <p>Draw a season and a franchise to begin building your roster. Each draw's real head coach is available to hire too.</p>
+          <button id="draw-btn" class="btn primary">Draw</button>
+        </div>
+
+        <div id="draw-card" class="draw-card hidden">
+          <div class="draw-card-head">
+            <div>
+              <div id="draw-season" class="draw-season"></div>
+              <div id="draw-team" class="draw-team"></div>
+            </div>
+            <div class="draw-actions">
+              <button id="swap-year-btn" class="btn ghost small">Swap era (<span id="swap-year-left">2</span>)</button>
+              <button id="swap-team-btn" class="btn ghost small">Swap team (<span id="swap-team-left">2</span>)</button>
+            </div>
+          </div>
+          <div class="player-list-head">
+            <span class="plh-id">Player</span>
+            <span class="plh-stats">Pts &middot; Reb &middot; Ast &middot; Stl &middot; Blk &middot; 3PT</span>
+            <span class="plh-right">OVR &middot; Price</span>
+          </div>
+          <div id="draw-players" class="player-list"></div>
+        </div>
+
+        <div id="squad-complete" class="squad-complete hidden">
+          <h2>Roster set</h2>
+          <p id="squad-summary"></p>
+          <div id="squad-team-stats" class="squad-stats-grid"></div>
+          <p id="squad-split-note" class="squad-split-note"></p>
+          <div id="squad-accolades" class="squad-accolades hidden">
+            <h3 class="hub-subhead">Real Accolades on This Roster</h3>
+            <div id="squad-accolades-badges" class="hub-chemistry-links"></div>
+          </div>
+          <div id="squad-coach-line" class="squad-coach-line"></div>
+          <div class="squad-complete-actions">
+            <button id="goto-hub-btn" class="btn primary">Continue to Team Hub</button>
+            <button id="restart-btn" class="btn ghost">Start over</button>
+          </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ============================= PHASE 2: TEAM HUB ============================= -->
+    <section id="phase-hub" class="phase hidden">
+      <div id="hub-checkpoint-banner" class="checkpoint-banner hidden">
+        <div class="cb-title">All-Star Break &amp; Trade Deadline</div>
+        <div id="hub-checkpoint-sub" class="cb-sub"></div>
+        <button id="checkpoint-trade-btn" class="btn ghost small checkpoint-trade-btn">Look for another trade</button>
+      </div>
+      <div class="hub-budget-row">
+        <span class="label">Unspent budget</span>
+        <span id="hub-budget-val" class="val">€0.0M</span>
+      </div>
+      <div class="hub-grid">
+        <section class="hub-roster">
+          <div class="hub-roster-head">
+            <h2>Roster</h2>
+            <button id="sub-mode-btn" class="btn ghost small">Substitute</button>
+          </div>
+          <p id="sub-hint" class="sub-hint hidden">Select a starter, then a bench player at the same position to swap them.</p>
+          <h3 class="hub-subhead">Starters</h3>
+          <div id="hub-starters" class="hub-slot-row"></div>
+          <h3 class="hub-subhead">Bench</h3>
+          <div id="hub-bench" class="hub-slot-row"></div>
+
+          <h3 class="hub-subhead">Head Coach</h3>
+          <div id="hub-coach-card" class="hub-coach-card"></div>
+        </section>
+
+        <section class="hub-tactics">
+          <h2>Game Plan</h2>
+          <div class="tactic-group" data-key="pace">
+            <div class="tactic-label">Pace</div>
+            <div class="tactic-options">
+              <button data-val="slow">Slow it down</button>
+              <button data-val="balanced">Balanced</button>
+              <button data-val="fast">Push the pace</button>
+            </div>
+          </div>
+          <div class="tactic-group" data-key="shots">
+            <div class="tactic-label">Shot selection</div>
+            <div class="tactic-options">
+              <button data-val="paint">Attack the paint</button>
+              <button data-val="balanced">Balanced</button>
+              <button data-val="three">Fire from three</button>
+            </div>
+          </div>
+          <div class="tactic-group" data-key="scheme">
+            <div class="tactic-label">Defensive scheme</div>
+            <div class="tactic-options">
+              <button data-val="man">Lockdown man</button>
+              <button data-val="solid">Solid</button>
+              <button data-val="switch">Switch everything</button>
+            </div>
+          </div>
+          <div class="tactic-group" data-key="offense">
+            <div class="tactic-label">Ball movement</div>
+            <div class="tactic-options">
+              <button data-val="iso">Isolation-heavy</button>
+              <button data-val="balanced">Balanced</button>
+              <button data-val="motion">Motion offense</button>
+            </div>
+          </div>
+          <div class="tactic-group" data-key="boards">
+            <div class="tactic-label">Rebounding</div>
+            <div class="tactic-options">
+              <button data-val="crash">Crash the glass</button>
+              <button data-val="balanced">Balanced</button>
+              <button data-val="getback">Get back on D</button>
+            </div>
+          </div>
+          <div class="tactic-group" data-key="rotation">
+            <div class="tactic-label">Bench usage</div>
+            <div class="tactic-options">
+              <button data-val="starters">Ride the starters</button>
+              <button data-val="balanced">Balanced rotation</button>
+              <button data-val="deep">Go deep on the bench</button>
+            </div>
+          </div>
+          <div class="team-rating-card">
+            <div class="team-rating-label">Team Rating</div>
+            <div id="team-rating-val" class="team-rating-val">--</div>
+          </div>
+          <button id="start-season-btn" class="btn primary full">Start Season</button>
+        </section>
+      </div>
+
+      <section class="hub-chemistry">
+        <h2>Team Chemistry <span id="chem-bonus-val" class="chem-bonus-badge"></span></h2>
+        <div id="hub-chemistry-links" class="hub-chemistry-links"></div>
+      </section>
+
+      <section class="hub-chemistry">
+        <h2>Accolades <span id="acc-bonus-val" class="chem-bonus-badge"></span></h2>
+        <div id="hub-accolades-badges" class="hub-chemistry-links"></div>
+      </section>
+    </section>
+
+    <!-- ============================= PHASE 3: SEASON ============================= -->
+    <section id="phase-season" class="phase hidden">
+      <div class="season-progress-card">
+        <div id="season-progress" class="season-progress-text"></div>
+        <button id="sim-season-btn" class="btn primary">Simulate to All-Star Break</button>
+      </div>
+      <div class="standings-grid">
+        <section class="standings-panel">
+          <h2>Eastern Conference</h2>
+          <table class="standings-table">
+            <thead><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th></tr></thead>
+            <tbody id="standings-east"></tbody>
+          </table>
+        </section>
+        <section class="standings-panel">
+          <h2>Western Conference</h2>
+          <table class="standings-table">
+            <thead><tr><th>#</th><th>Team</th><th>W</th><th>L</th><th>PCT</th></tr></thead>
+            <tbody id="standings-west"></tbody>
+          </table>
+        </section>
+      </div>
+    </section>
+
+    <!-- ============================= PHASE 4: PLAYOFFS ============================= -->
+    <section id="phase-playoffs" class="phase hidden">
+
+      <!-- top half: the compelling, decision-heavy "Game Day" panel -->
+      <div class="playoffs-hero">
+        <div id="hero-pregame" class="hero-pregame">
+          <div id="hero-round-label" class="hero-round-label"></div>
+          <div class="hero-matchup">
+            <div id="hero-team-a" class="hero-team"></div>
+            <div class="hero-vs">VS</div>
+            <div id="hero-team-b" class="hero-team"></div>
+          </div>
+          <div id="hero-context" class="hero-context"></div>
+          <div class="hero-pregame-label">Set your game plan for tip-off</div>
+          <div id="pregame-choices" class="pregame-choices"></div>
+        </div>
+
+        <div id="hero-live" class="hero-live hidden">
+          <div class="result-score-row">
+            <div class="result-team">
+              <div id="po-you-name" class="result-team-name">You</div>
+              <div id="po-you-score" class="result-score">0</div>
+            </div>
+            <div class="result-mid" id="po-quarter">Q1</div>
+            <div class="result-team">
+              <div id="po-opp-name" class="result-team-name">Opponent</div>
+              <div id="po-opp-score" class="result-score">0</div>
+            </div>
+          </div>
+          <div id="po-quarter-log" class="quarter-log"></div>
+
+          <div id="po-halftime-panel" class="halftime-panel hidden">
+            <div class="halftime-title">Halftime adjustment</div>
+            <div id="po-halftime-options" class="halftime-options"></div>
+          </div>
+
+          <div id="po-clutch-panel" class="clutch-panel hidden">
+            <div id="clutch-picker">
+              <div id="clutch-situation" class="clutch-situation"></div>
+              <div id="clutch-shot-label" class="clutch-shot-label"></div>
+              <div id="clutch-candidates" class="clutch-candidates"></div>
+            </div>
+            <div id="clutch-result" class="clutch-result hidden"></div>
+          </div>
+
+          <button id="po-advance-btn" class="btn primary">Simulate Q1</button>
+          <div id="po-box-score" class="box-score hidden"></div>
+        </div>
+      </div>
+
+      <!-- bottom half: the full bracket, always visible, reference-weight -->
+      <div id="bracket" class="bracket"></div>
+    </section>
+
+    <!-- ============================= PHASE 5: SEASON RECAP ============================= -->
+    <section id="phase-end" class="phase hidden">
+      <div id="recap-banner" class="recap-banner">
+        <div id="recap-trophy" class="recap-trophy"></div>
+        <div id="recap-title" class="recap-title"></div>
+        <div id="recap-subtitle" class="recap-subtitle"></div>
+      </div>
+
+      <div class="recap-grid">
+        <section class="recap-card">
+          <h2>Season Highlights</h2>
+          <div id="recap-stats" class="recap-stat-tiles"></div>
+        </section>
+
+        <section class="recap-card">
+          <h2>Team Leaders</h2>
+          <div id="recap-leaders" class="recap-leaders"></div>
+        </section>
+
+        <section class="recap-card recap-card-wide">
+          <h2>Playoff Run</h2>
+          <div id="recap-playoff-run" class="recap-timeline"></div>
+        </section>
+
+        <section class="recap-card recap-card-wide">
+          <h2>Front Office</h2>
+          <div id="recap-front-office" class="recap-front-office"></div>
+        </section>
+      </div>
+
+      <button id="new-run-btn" class="btn primary full recap-play-again">Play Again</button>
+    </section>
+
+  </main>
+
+  <!-- trade offer modal, overlays any phase -->
+  <div id="trade-modal" class="modal-backdrop hidden">
+    <div class="modal-card trade-card">
+      <h2>Trade offer</h2>
+      <div class="trade-body">
+        <div class="trade-side">
+          <div class="trade-side-label">They give you</div>
+          <div id="trade-incoming" class="trade-player"></div>
+        </div>
+        <div class="trade-arrow">&#8644;</div>
+        <div class="trade-side">
+          <div class="trade-side-label">You give up</div>
+          <div id="trade-outgoing" class="trade-player"></div>
+        </div>
+      </div>
+      <div class="trade-actions">
+        <button id="trade-accept-btn" class="btn primary">Accept</button>
+        <button id="trade-decline-btn" class="btn ghost">Decline</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/assets.js"></script>
+  <script src="js/chemistry.js"></script>
+  <script src="js/accolades.js"></script>
+  <script src="js/sim.js"></script>
+  <script src="js/league.js"></script>
+  <script src="js/franchise.js"></script>
+  <script src="js/draft.js"></script>
+  <script src="js/hub.js"></script>
+  <script src="js/season.js"></script>
+  <script src="js/playoffs.js"></script>
+  <script src="js/duel.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
