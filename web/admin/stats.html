@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NBA Time Machine — Stats</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+  body { max-width: 960px; margin: 0 auto; padding: 20px; }
+  .admin-gate { max-width: 340px; margin: 80px auto; text-align: center; }
+  .admin-gate input { width: 100%; margin: 12px 0; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 4px; font-size: 14px; }
+  .admin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
+  .admin-section { margin-bottom: 28px; }
+  table.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.admin-table th, table.admin-table td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); }
+  table.admin-table th { color: var(--ink-faint); text-transform: uppercase; font-size: 10.5px; letter-spacing: 0.03em; }
+  .admin-error { color: var(--bad); font-size: 13px; margin-top: 10px; }
+  .admin-hidden { display: none; }
+</style>
+</head>
+<body>
+  <header class="topbar" style="margin: -20px -20px 20px;">
+    <div class="brand">
+      <span class="brand-mark">NBA</span>
+      <span class="brand-name">Time Machine — Stats</span>
+    </div>
+  </header>
+
+  <section id="admin-gate" class="admin-gate">
+    <h2>Enter admin password</h2>
+    <input id="admin-pw-input" type="password" placeholder="Password" autocomplete="off">
+    <button id="admin-pw-btn" class="btn primary full">View Stats</button>
+    <div id="admin-error" class="admin-error admin-hidden"></div>
+  </section>
+
+  <section id="admin-body" class="admin-hidden">
+    <div id="admin-tiles" class="admin-grid"></div>
+
+    <section class="admin-section">
+      <h2>By Difficulty</h2>
+      <table class="admin-table">
+        <thead><tr><th>Difficulty</th><th>Runs</th><th>Completion Rate</th><th>Avg Final Seed</th><th>Champion Rate</th></tr></thead>
+        <tbody id="admin-difficulty-body"></tbody>
+      </table>
+    </section>
+
+    <section class="admin-section">
+      <h2>Top Franchises Picked</h2>
+      <table class="admin-table">
+        <thead><tr><th>Franchise</th><th>Times Picked</th></tr></thead>
+        <tbody id="admin-franchise-body"></tbody>
+      </table>
+    </section>
+
+    <section class="admin-section">
+      <h2>Playoff Result Breakdown</h2>
+      <table class="admin-table">
+        <thead><tr><th>Result</th><th>Count</th></tr></thead>
+        <tbody id="admin-playoff-body"></tbody>
+      </table>
+    </section>
+  </section>
+
+<script>
+function $(id) { return document.getElementById(id); }
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+function tile(val, label) {
+  return `<div class="stat-tile"><div class="stat-tile-val">${val}</div><div class="stat-tile-label">${label}</div></div>`;
+}
+
+async function loadStats(password) {
+  const resp = await fetch("/api/stats/summary", { headers: { "X-Admin-Password": password } });
+  if (!resp.ok) throw new Error(resp.status === 401 ? "Wrong password." : `Request failed (${resp.status})`);
+  return resp.json();
+}
+
+function render(data) {
+  $("admin-tiles").innerHTML = [
+    tile(data.total_runs, "Total Runs"),
+    tile(data.difficulty_chosen, "Difficulty Chosen"),
+    tile(data.draft_completed, "Drafts Completed"),
+    tile(data.season_started, "Seasons Started"),
+    tile(data.season_completed, "Seasons Completed"),
+    tile(`${data.overall_completion_rate}%`, "Overall Completion Rate"),
+    tile(data.avg_games_played_in_progress ?? "&mdash;", "Avg Games Played (in progress)"),
+  ].join("");
+
+  $("admin-difficulty-body").innerHTML = data.by_difficulty.map(d => `
+    <tr>
+      <td>${esc(d.difficulty)}</td>
+      <td>${d.runs}</td>
+      <td>${d.completion_rate}%</td>
+      <td>${d.avg_final_seed ?? "&mdash;"}</td>
+      <td>${d.champion_rate == null ? "&mdash;" : d.champion_rate + "%"}</td>
+    </tr>`).join("") || `<tr><td colspan="5">No runs yet.</td></tr>`;
+
+  $("admin-franchise-body").innerHTML = data.top_franchises.map(f => `
+    <tr><td>${esc(f.name)}</td><td>${f.count}</td></tr>`).join("") || `<tr><td colspan="2">No picks yet.</td></tr>`;
+
+  $("admin-playoff-body").innerHTML = data.playoff_result_breakdown.map(p => `
+    <tr><td>${esc(p.result)}</td><td>${p.count}</td></tr>`).join("") || `<tr><td colspan="2">No finished runs yet.</td></tr>`;
+}
+
+async function submitPassword() {
+  const pw = $("admin-pw-input").value;
+  $("admin-error").classList.add("admin-hidden");
+  try {
+    const data = await loadStats(pw);
+    sessionStorage.setItem("nba_tm_admin_pw", pw);
+    $("admin-gate").classList.add("admin-hidden");
+    $("admin-body").classList.remove("admin-hidden");
+    render(data);
+  } catch (e) {
+    $("admin-error").textContent = e.message;
+    $("admin-error").classList.remove("admin-hidden");
+  }
+}
+
+$("admin-pw-btn").addEventListener("click", submitPassword);
+$("admin-pw-input").addEventListener("keydown", e => { if (e.key === "Enter") submitPassword(); });
+
+// remember the password for this tab only — never persisted to localStorage
+const remembered = sessionStorage.getItem("nba_tm_admin_pw");
+if (remembered) {
+  $("admin-pw-input").value = remembered;
+  submitPassword();
+}
+</script>
+</body>
+</html>

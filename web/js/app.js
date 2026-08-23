@@ -97,6 +97,16 @@ function finishRun(winnerSeed) {
   const chem = chemistryBonus(HUB.starters, HUB.bench, HUB.coach);
   const leaders = rosterLeaders();
 
+  sendStatEvent("season_finished", {
+    games_played: SEASON.wins + SEASON.losses,
+    wins: SEASON.wins,
+    losses: SEASON.losses,
+    conference: SEASON.yourConf,
+    final_seed: seed,
+    made_playoffs: !PLAYOFFS.userMissedPlayoffs,
+    playoff_result: wonIt ? "champion" : (PLAYOFFS.userEliminatedAt || (PLAYOFFS.userMissedPlayoffs ? "missed_playin" : null)),
+  });
+
   $("recap-banner").classList.toggle("champion", wonIt);
   $("recap-trophy").innerHTML = wonIt ? TROPHY_SVG : "";
   $("recap-title").textContent = wonIt ? `${FRANCHISE.name} — NBA Champions` : `${FRANCHISE.name} — ${howFarText(false)}`;
@@ -151,6 +161,7 @@ function wireDifficultyEvents() {
   document.querySelectorAll(".mode-card[data-budget]").forEach(btn => {
     btn.addEventListener("click", () => {
       BUDGET = Number(btn.dataset.budget);
+      sendStatEvent("difficulty_chosen", { difficulty: btn.dataset.diff, budget: BUDGET });
       switchPhase("franchise");
     });
   });
@@ -162,6 +173,7 @@ function wireAppEvents() {
     initHub(getDraftedSquad());
     wireSeasonEvents();
     wirePlayoffsEvents();
+    sendStatEvent("draft_completed", { franchise_code: FRANCHISE.code, franchise_name: FRANCHISE.name });
     switchPhase("hub");
   });
   $("start-season-btn").addEventListener("click", () => {
@@ -173,6 +185,7 @@ function wireAppEvents() {
       renderSeason();
     } else {
       startSeason();
+      sendStatEvent("season_started", {});
       switchPhase("season");
     }
   });

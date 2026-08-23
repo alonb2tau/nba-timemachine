@@ -31,6 +31,7 @@ function confirmFranchise() {
     code: selected.code, name, realName: selected.name,
     colors: selected.colors, nba_id: selected.nba_id, conf: selected.conf, div: selected.div,
   };
+  sendStatEvent("franchise_picked", { franchise_code: FRANCHISE.code, franchise_name: FRANCHISE.name });
   initDraft();
   switchPhase("draft");
 }

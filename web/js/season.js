@@ -85,6 +85,7 @@ function showNextCheckpointOffer() {
 }
 
 function enterCheckpointHub() {
+  sendStatEvent("season_checkpoint", { games_played: SEASON.gameIndex, wins: SEASON.wins, losses: SEASON.losses });
   SEASON.checkpointOffers = null;
   $("hub-checkpoint-sub").textContent =
     `${SEASON.gameIndex} of ${SEASON_LENGTH} games played — record ${SEASON.wins}-${SEASON.losses}. ` +

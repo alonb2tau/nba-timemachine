@@ -32,15 +32,15 @@
       <section class="mode-panel">
         <h2>Choose your difficulty</h2>
         <div class="mode-options">
-          <button id="diff-easy-btn" class="mode-card" data-budget="110">
+          <button id="diff-easy-btn" class="mode-card" data-budget="110" data-diff="easy">
             <div class="mode-card-title">Easy</div>
             <div class="mode-card-sub">€110M draft budget — build a stacked roster.</div>
           </button>
-          <button id="diff-medium-btn" class="mode-card" data-budget="100">
+          <button id="diff-medium-btn" class="mode-card" data-budget="100" data-diff="medium">
             <div class="mode-card-title">Medium</div>
             <div class="mode-card-sub">€100M draft budget — the standard challenge.</div>
           </button>
-          <button id="diff-hard-btn" class="mode-card" data-budget="90">
+          <button id="diff-hard-btn" class="mode-card" data-budget="90" data-diff="hard">
             <div class="mode-card-title">Hard</div>
             <div class="mode-card-sub">€90M draft budget — every pick has to count.</div>
           </button>
@@ -355,6 +355,7 @@
 
   <div id="toast" class="toast hidden"></div>
 
+  <script src="js/stats.js"></script>
   <script src="js/data.js"></script>
   <script src="js/assets.js"></script>
   <script src="js/chemistry.js"></script>

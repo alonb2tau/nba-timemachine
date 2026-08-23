@@ -11,9 +11,12 @@ Run with:
 import json
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, Header, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+
+from server import stats
 
 ROOT = Path(__file__).resolve().parent.parent
 SEASONS_DIR = ROOT / "data" / "seasons"
@@ -58,6 +61,49 @@ def get_season(year: int):
     if year < SEASON_MIN_YEAR or not path.exists():
         raise HTTPException(404, f"no data for season {year}")
     return FileResponse(path, media_type="application/json")
+
+
+class StatEvent(BaseModel):
+    session_id: str
+    event: str
+    difficulty: str | None = None
+    budget: float | None = None
+    franchise_code: str | None = None
+    franchise_name: str | None = None
+    games_played: int | None = None
+    wins: int | None = None
+    losses: int | None = None
+    conference: str | None = None
+    final_seed: int | None = None
+    made_playoffs: bool | None = None
+    playoff_result: str | None = None
+
+
+# checkpoint-only flags each event flips on, beyond whatever fields the
+# frontend already sent in the same request
+EVENT_FLAGS = {
+    "draft_completed": {"draft_completed": True},
+    "season_started": {"season_started": True},
+    "season_finished": {"season_complete": True},
+}
+
+
+@app.post("/api/stats/event")
+async def post_stat_event(body: StatEvent):
+    if not stats.ENABLED:
+        return {"ok": False, "reason": "stats not configured"}
+    patch = body.model_dump(exclude={"session_id", "event"}, exclude_none=True)
+    patch.update(EVENT_FLAGS.get(body.event, {}))
+    await stats.upsert_run(body.session_id, patch)
+    return {"ok": True}
+
+
+@app.get("/api/stats/summary")
+async def stats_summary(x_admin_password: str | None = Header(default=None)):
+    if not stats.ADMIN_PASSWORD or x_admin_password != stats.ADMIN_PASSWORD:
+        raise HTTPException(401, "bad admin password")
+    runs = await stats.fetch_all_runs()
+    return stats.summarize_runs(runs)
 
 
 # static frontend last, so it doesn't swallow the /api routes above
