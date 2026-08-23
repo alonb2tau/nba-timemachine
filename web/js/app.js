@@ -147,10 +147,18 @@ function finishRun(winnerSeed) {
   }, 1200);
 }
 
+function wireDifficultyEvents() {
+  document.querySelectorAll(".mode-card[data-budget]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      BUDGET = Number(btn.dataset.budget);
+      switchPhase("franchise");
+    });
+  });
+}
+
 function wireAppEvents() {
   $("goto-hub-btn").addEventListener("click", () => {
     if (!draftIsComplete()) return;
-    if (MP) { mpSubmitRoster(); return; }
     initHub(getDraftedSquad());
     wireSeasonEvents();
     wirePlayoffsEvents();
@@ -174,7 +182,7 @@ function wireAppEvents() {
 
 async function boot() {
   wireAppEvents();
-  wireDuelEvents();
+  wireDifficultyEvents();
   await initFranchise();
   switchPhase("mode");
 }

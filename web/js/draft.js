@@ -7,7 +7,7 @@
  * but reads NBA data and NBA-native ratings computed by pipeline/ratings.py.
  */
 
-const BUDGET = 100; // 10 players + 1 coach, all from one shared cap
+let BUDGET = 100; // 10 players + 1 coach, all from one shared cap — set by difficulty choice
 const COACH_MIN_PRICE = 1; // cheapest coach on the board — reserved until one is hired
 const SLOT_POSITIONS = ["G", "G", "F", "F", "C"];
 

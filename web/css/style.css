@@ -260,6 +260,9 @@ h3.hub-subhead {
 }
 .team-rating-label { font-family: "Oswald", sans-serif; font-size: 11px; color: #9a9ea6; text-transform: uppercase; letter-spacing: 0.06em; }
 .team-rating-val { font-family: "Oswald", sans-serif; font-size: 34px; font-weight: 700; color: #fff; margin-top: 2px; }
+.team-strength-card { margin-top: 10px; background: var(--panel); border: 1px solid var(--line); }
+.team-strength-card .team-rating-label { color: var(--ink-faint); }
+.team-strength-card .team-rating-val { color: var(--ink); font-size: 26px; }
 
 .hub-budget-row {
   display: flex; justify-content: space-between; align-items: center;
@@ -648,45 +651,3 @@ h3.hub-subhead {
 .mode-card-title { font-family: "Oswald", sans-serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: var(--ink); margin-bottom: 8px; }
 .mode-card-sub { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
 
-.mp-start-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 720px; margin: 0 auto; }
-.mp-start-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; }
-.mp-start-card p { font-size: 13px; color: var(--ink-soft); margin: -6px 0 14px; }
-.mp-code-input { text-transform: uppercase; letter-spacing: 0.08em; }
-
-.mp-lobby-head { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 18px; }
-.mp-code { color: var(--red); font-family: "Oswald", sans-serif; letter-spacing: 0.06em; }
-.mp-link-row { display: flex; gap: 8px; margin: 10px 0 16px; }
-.mp-link-input { flex: 1; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 12.5px; color: var(--ink-soft); background: #fafafb; }
-.mp-player-list { display: flex; flex-direction: column; gap: 6px; }
-.mp-player-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; }
-.mp-player-row.me { border-color: var(--red); background: var(--red-tint); }
-.mp-player-name { font-weight: 700; }
-.mp-player-status { color: var(--ink-soft); font-size: 12px; }
-
-.mp-duels-panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; }
-.mp-duel-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--line); gap: 12px; flex-wrap: wrap; }
-.mp-duel-row:last-child { border-bottom: none; }
-.mp-duel-matchup { font-weight: 700; font-size: 13.5px; }
-.mp-duel-sub { display: block; font-weight: 400; color: var(--ink-faint); font-size: 11.5px; margin-top: 2px; }
-.mp-duel-action { display: flex; align-items: center; gap: 8px; }
-.mp-duel-result { font-family: "Oswald", sans-serif; font-weight: 700; padding: 3px 8px; border-radius: 3px; font-size: 12px; }
-.mp-duel-result.won { background: var(--good-tint); color: var(--good); }
-.mp-duel-result.lost { background: #fbe9ea; color: var(--bad); }
-.mp-duel-pending { color: var(--ink-faint); font-size: 12px; font-style: italic; }
-.mp-empty { color: var(--ink-faint); font-size: 13px; font-style: italic; }
-
-.mp-standings { display: flex; flex-direction: column; gap: 4px; margin-top: 8px; }
-.mp-standings-row { display: flex; justify-content: space-between; padding: 6px 10px; background: #fafafb; border: 1px solid var(--line); border-radius: var(--radius); font-size: 13px; }
-.mp-standings-row.me { border-color: var(--red); }
-.mp-standings-row span:last-child { font-family: "Oswald", sans-serif; font-weight: 700; }
-
-.mp-spectate { text-align: center; padding: 40px 20px; background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); }
-.mp-owner { color: var(--ink-faint); font-size: 11.5px; }
-.mp-box-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-
-.franchise-card.taken { opacity: 0.35; cursor: not-allowed; }
-.franchise-card[data-code=""] { pointer-events: none; }
-
-@media (max-width: 720px) {
-  .mp-start-grid, .mp-box-cols { grid-template-columns: 1fr; }
-}

@@ -27,80 +27,25 @@
 
   <main id="app">
 
-    <!-- ============================= PHASE: MODE SELECT ============================= -->
+    <!-- ============================= PHASE: DIFFICULTY SELECT ============================= -->
     <section id="phase-mode" class="phase">
       <section class="mode-panel">
-        <h2>How are you playing?</h2>
+        <h2>Choose your difficulty</h2>
         <div class="mode-options">
-          <button id="mode-single-btn" class="mode-card">
-            <div class="mode-card-title">Single Player</div>
-            <div class="mode-card-sub">Draft one franchise, run a full 82-game season and playoffs.</div>
+          <button id="diff-easy-btn" class="mode-card" data-budget="110">
+            <div class="mode-card-title">Easy</div>
+            <div class="mode-card-sub">€110M draft budget — build a stacked roster.</div>
           </button>
-          <button id="mode-multi-btn" class="mode-card">
-            <div class="mode-card-title">Quick League</div>
-            <div class="mode-card-sub">Up to 5 players draft their own franchise via a shareable link, then face off head-to-head.</div>
+          <button id="diff-medium-btn" class="mode-card" data-budget="100">
+            <div class="mode-card-title">Medium</div>
+            <div class="mode-card-sub">€100M draft budget — the standard challenge.</div>
+          </button>
+          <button id="diff-hard-btn" class="mode-card" data-budget="90">
+            <div class="mode-card-title">Hard</div>
+            <div class="mode-card-sub">€90M draft budget — every pick has to count.</div>
           </button>
         </div>
       </section>
-    </section>
-
-    <!-- ============================= PHASE: QUICK LEAGUE START ============================= -->
-    <section id="phase-mp-start" class="phase hidden">
-      <section class="mp-start-grid">
-        <div class="mp-start-card">
-          <h2>Create a League</h2>
-          <p>You'll get a shareable link — send it to up to 4 friends.</p>
-          <input id="mp-create-name-input" type="text" class="franchise-name-input" placeholder="Your name" maxlength="40">
-          <button id="mp-create-btn" class="btn primary full">Create League</button>
-        </div>
-        <div class="mp-start-card">
-          <h2>Join a League</h2>
-          <p>Paste the code a friend sent you.</p>
-          <input id="mp-join-code-input" type="text" class="franchise-name-input mp-code-input" placeholder="League code" maxlength="6">
-          <input id="mp-join-name-input" type="text" class="franchise-name-input" placeholder="Your name" maxlength="40">
-          <button id="mp-join-btn" class="btn primary full">Join League</button>
-        </div>
-      </section>
-    </section>
-
-    <!-- ============================= PHASE: QUICK LEAGUE LOBBY ============================= -->
-    <section id="phase-mp-lobby" class="phase hidden">
-      <section class="mp-lobby-head">
-        <h2>League <span id="mp-lobby-code" class="mp-code"></span></h2>
-        <div class="mp-link-row">
-          <input id="mp-lobby-link" class="mp-link-input" readonly>
-          <button id="mp-copy-lobby-link-btn" class="btn ghost small">Copy link</button>
-        </div>
-        <div id="mp-lobby-players" class="mp-player-list"></div>
-      </section>
-      <section id="mp-franchise-pick" class="franchise-panel">
-        <h2>Choose Your Franchise</h2>
-        <div id="mp-franchise-grid" class="franchise-grid"></div>
-        <input id="mp-franchise-name-input" type="text" class="franchise-name-input" placeholder="Name your team" maxlength="40">
-        <button id="mp-franchise-confirm-btn" class="btn primary full" disabled>Begin Draft</button>
-      </section>
-    </section>
-
-    <!-- ============================= PHASE: QUICK LEAGUE WAITING / DUELS ============================= -->
-    <section id="phase-mp-waiting" class="phase hidden">
-      <section class="mp-lobby-head">
-        <h2>League <span id="mp-wait-code" class="mp-code"></span></h2>
-        <div class="mp-link-row">
-          <input id="mp-wait-link" class="mp-link-input" readonly>
-          <button id="mp-copy-wait-link-btn" class="btn ghost small">Copy link</button>
-        </div>
-        <div id="mp-wait-players" class="mp-player-list"></div>
-      </section>
-      <section class="mp-duels-panel">
-        <h2>Your Duels</h2>
-        <div id="mp-duels-list"></div>
-        <div id="mp-standings-block"></div>
-      </section>
-    </section>
-
-    <!-- ============================= PHASE: QUICK LEAGUE DUEL ============================= -->
-    <section id="phase-mp-duel" class="phase hidden">
-      <div id="mp-duel-body" class="playoffs-hero"></div>
     </section>
 
     <!-- ============================= PHASE 0: FRANCHISE ============================= -->
@@ -253,6 +198,10 @@
           <div class="team-rating-card">
             <div class="team-rating-label">Team Rating</div>
             <div id="team-rating-val" class="team-rating-val">--</div>
+          </div>
+          <div class="team-rating-card team-strength-card">
+            <div class="team-rating-label">Team Strength (SRS) &middot; reflects your Game Plan</div>
+            <div id="team-strength-val" class="team-rating-val">--</div>
           </div>
           <button id="start-season-btn" class="btn primary full">Start Season</button>
         </section>
@@ -417,7 +366,6 @@
   <script src="js/hub.js"></script>
   <script src="js/season.js"></script>
   <script src="js/playoffs.js"></script>
-  <script src="js/duel.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

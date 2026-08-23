@@ -3,9 +3,8 @@
 A dream-team drafting game across 16 seasons of NBA history (2010-11 → 2025-26),
 inspired by [Euroball Time Machine](https://euroball.netlify.app/). Draft real
 players — rated with their actual NBA 2K overall where the game covered them,
-a computed rating otherwise — and a real head coach from history, then either
-run a full 82-game NBA season solo, or draft against up to 4 friends in a
-shareable-link Quick League and settle it with a head-to-head duel.
+a computed rating otherwise — and a real head coach from history, then run a
+full 82-game NBA season and playoffs at the difficulty you choose.
 
 ## Project layout
 
@@ -21,13 +20,11 @@ cache/raw/          cached HTML, gitignored — fetch.py never re-downloads a ca
 cache/raw_2k/       cached 2K ratings pages, gitignored, same caching discipline
 data/seasons/       one JSON file per season, what the frontend actually reads
 server/app.py       tiny FastAPI server: serves web/ + /api/seasons endpoints
-server/leagues.py   Quick League multiplayer: in-memory league/duel state + API
 web/                the game itself — plain HTML/CSS/JS, no build step
   js/assets.js       real photo/logo URLs with generated-avatar fallback
   js/league.js       conference/division structure, 82-game schedule, standings
   js/sim.js          the game engine (quarters, box scores, coach/tactics effects)
   js/playoffs.js     Play-In Tournament + best-of-7 bracket, auto-resolves AI games
-  js/duel.js         Quick League: create/join a league, draft, head-to-head duels
 LESSONS/            numbered docs explaining how each part works
 ```
 
@@ -55,9 +52,10 @@ Older seasons can still be scraped/parsed, they're just not served.
 
 ## How it plays
 
-**Mode** — play solo, or create/join a **Quick League**: up to 5 people via
-a shareable link, each drafting their own franchise, then settling it in
-head-to-head duels (see the Quick League section below).
+**Difficulty** — the very first choice, before you even pick a franchise:
+**Easy** (€110M draft budget), **Medium** (€100M), or **Hard** (€90M). It's
+the same draft, the same 30 real franchises, the same player pool — a
+tighter budget just means tougher trade-offs at every pick.
 
 0. **Franchise** — pick one of the 30 real NBA franchises to run (its real
    conference, division, colors and logo carry through the whole season)
@@ -65,7 +63,8 @@ head-to-head duels (see the Quick League section below).
    around you, each a fixed historical snapshot.
 1. **Draft** — draw a random (season, team); pick one player into an open
    G/G/F/F/C slot, or hire that team's real historical head coach, from a
-   shared $100M cap (10 players + 1 coach). Every player is rated with
+   shared cap sized by your chosen difficulty (10 players + 1 coach). Every
+   player is rated with
    their **real NBA 2K overall** for that season where HoopsHype's archive
    covers them (about 82% of the player pool from 2010-11 on), and the
    computed era-normalized rating otherwise — both feed the same price
@@ -86,7 +85,11 @@ head-to-head duels (see the Quick League section below).
    movement, rebounding emphasis, and bench usage. Bench usage isn't
    cosmetic — it actually shifts how much of your team rating comes from
    the starting five vs. the bench (75/25 by default; "ride the starters"
-   or "go deep on the bench" move that split for real). The coach is
+   or "go deep on the bench" move that split for real). Every one of the
+   six dials genuinely changes how your team plays, which is why the hub
+   shows two numbers: **Team Rating**, your roster's raw talent, and
+   **Team Strength (SRS)**, the number the season sim actually uses — it
+   moves with every tactic you touch, not just bench usage. The coach is
    locked in from the draft — real teams don't fire a coach mid-season
    here.
 3. **Season** — a real 82-game NBA season. The schedule is weighted the
@@ -110,41 +113,17 @@ head-to-head duels (see the Quick League section below).
    series), every clutch shot taken, and a front-office summary (coach,
    chemistry). Champion runs get a gold trophy treatment.
 
-## Quick League (multiplayer)
-
-Create a league from the mode-select screen and you get a shareable
-code/link — send it to up to 4 friends. Everyone picks a different real
-franchise and drafts their own roster independently (no waiting on each
-other). Once two or more players are ready, every pair plays one duel:
-whoever opens it first plays it live (tip-off choice, quarter-by-quarter,
-halftime call, a clutch shot if it's tight) against the other player's
-*real* drafted roster — both sides get a genuine box score, not a
-fabricated one. The other player sees the final result once it's posted.
-Standings track wins/losses across all the duels in the league.
-
-There's no account system and no database — a league is an in-memory
-record on the server for as long as it keeps running (`server/leagues.py`),
-which is the right amount of persistence for something meant to be quick.
-See `LESSONS/07` for how the multiplayer sync actually works (or rather,
-how little of it there needed to be).
-
 ## Status
 
 **Milestones 3-6 done**, plus real assets, full league authenticity, real
 franchise selection, a historical-chemistry system, an ESPN-style bracket,
-a clutch-shot mechanic, a full season recap, real NBA 2K ratings, Quick
-League multiplayer, a real-accolades bonus system, and a six-field game
-plan (see the plan and `LESSONS/02` through `LESSONS/08`).
+a clutch-shot mechanic, a full season recap, real NBA 2K ratings, a
+three-tier difficulty select, a real-accolades bonus system, and a
+six-field game plan (see the plan and `LESSONS/02` through `LESSONS/08`).
 Not yet built: career mode (multi-season, keep/retain), daily challenge,
-leaderboards, real hosting. For now, sharing the app outside this machine
-means running a tunnel alongside the server:
+leaderboards.
 
-```bash
-./.bin/cloudflared tunnel --url http://127.0.0.1:8000
-```
-
-`.bin/cloudflared` is a downloaded binary (gitignored, not committed) — see
-`pipeline/fetch_2k.py`'s neighbor `.bin/` folder. This prints a temporary
-`trycloudflare.com` URL with no account needed; it dies when the tunnel
-process (or this machine) stops, so it's for sharing a live session, not
-permanent hosting.
+Deployed on [Render](https://render.com)'s free tier — see `render.yaml`.
+Pushing to `main` redeploys automatically. The free tier spins down after
+~15 minutes idle, so the first request after a quiet stretch takes 30-50s
+to wake back up.

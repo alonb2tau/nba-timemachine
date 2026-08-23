@@ -232,44 +232,6 @@ function newGameEngine(starters, bench, tactics, opponent, isHome, coach) {
   };
 }
 
-/**
- * Same engine as newGameEngine, but symmetric: both sides are a real
- * drafted roster (Quick League duel mode, where the "opponent" is a real
- * human's squad, not a fixed historical SRS number), so both get a real
- * box score at the end instead of just one.
- */
-function newDuelEngine(me, opp) {
-  const meSRS = teamStrength(me.starters, me.bench, me.tactics, me.coach);
-  const oppSRS = teamStrength(opp.starters, opp.bench, opp.tactics, opp.coach);
-  let pregameBias = 0, halftimeBias = 0;
-
-  return {
-    meSRS, oppSRS,
-    quarters: [],
-    playQuarter(q) {
-      const bias = q <= 2 ? pregameBias : halftimeBias;
-      const [you, opp2] = simQuarter(meSRS, oppSRS, me.tactics, 0, bias);
-      this.quarters.push({ you, opp: opp2 });
-      return { you, opp: opp2 };
-    },
-    applyPregameBias(delta) { pregameBias = delta; },
-    applyHalftimeBias(delta) { halftimeBias = delta; },
-    applyClutchShot(youPts, oppPts) {
-      this.quarters.push({ you: youPts, opp: oppPts, clutch: true });
-    },
-    totals() {
-      return this.quarters.reduce((acc, q) => ({ you: acc.you + q.you, opp: acc.opp + q.opp }), { you: 0, opp: 0 });
-    },
-    boxScores() {
-      const t = this.totals();
-      return {
-        you: genBoxScore(me.starters, me.bench, t.you, t.you >= t.opp),
-        opp: genBoxScore(opp.starters, opp.bench, t.opp, t.opp >= t.you),
-      };
-    },
-  };
-}
-
 const HALFTIME_CHOICES = [
   { key: "push",   label: "Ride the hot hand — keep attacking",  bias: 2.4 },
   { key: "lock",   label: "Tighten up on defense",                bias: 1.6 },

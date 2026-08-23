@@ -118,6 +118,7 @@ function renderHub() {
   const chem = chemistryBonus(HUB.starters, HUB.bench, HUB.coach);
   const acc = accoladesBonus(HUB.starters, HUB.bench, HUB.coach, HUB.tactics.rotation);
   $("team-rating-val").textContent = Math.round(avgOvr);
+  $("team-strength-val").textContent = signedNum(teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach));
   $("chem-bonus-val").textContent = `+${chem.bonus.toFixed(1)} SRS`;
   $("hub-chemistry-links").innerHTML = chem.links.length
     ? chem.links.map(l => `<div class="chem-link">

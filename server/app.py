@@ -15,14 +15,25 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from server.leagues import router as leagues_router
-
 ROOT = Path(__file__).resolve().parent.parent
 SEASONS_DIR = ROOT / "data" / "seasons"
 WEB_DIR = ROOT / "web"
 
 app = FastAPI(title="NBA Time Machine")
-app.include_router(leagues_router)
+
+
+@app.middleware("http")
+async def no_cache_static(request, call_next):
+    """No build step means no hashed filenames — without this, a browser
+    that already loaded js/*.js or css/*.css can keep serving those exact
+    bytes indefinitely after a deploy ships new ones. ETag/Last-Modified
+    still make repeat loads cheap; this just forces the revalidation check
+    every time instead of skipping it."""
+    response = await call_next(request)
+    if request.url.path.startswith(("/js/", "/css/")):
+        response.headers["Cache-Control"] = "no-cache"
+    return response
+
 
 # Real players/coaches only from the 2010-11 season on — the first season
 # with reliable NBA 2K ratings coverage (pipeline/fetch_2k.py). Older
