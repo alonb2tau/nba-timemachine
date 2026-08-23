@@ -64,6 +64,7 @@ def get_season(year: int):
 
 
 class StatEvent(BaseModel):
+    run_id: str
     session_id: str
     event: str
     difficulty: str | None = None
@@ -92,9 +93,9 @@ EVENT_FLAGS = {
 async def post_stat_event(body: StatEvent):
     if not stats.ENABLED:
         return {"ok": False, "reason": "stats not configured"}
-    patch = body.model_dump(exclude={"session_id", "event"}, exclude_none=True)
+    patch = body.model_dump(exclude={"run_id", "event"}, exclude_none=True)
     patch.update(EVENT_FLAGS.get(body.event, {}))
-    await stats.upsert_run(body.session_id, patch)
+    await stats.upsert_run(body.run_id, patch)
     return {"ok": True}
 
 

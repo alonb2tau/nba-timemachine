@@ -161,6 +161,7 @@ function wireDifficultyEvents() {
   document.querySelectorAll(".mode-card[data-budget]").forEach(btn => {
     btn.addEventListener("click", () => {
       BUDGET = Number(btn.dataset.budget);
+      startNewRun(); // a fresh game starts here — give it its own telemetry row
       sendStatEvent("difficulty_chosen", { difficulty: btn.dataset.diff, budget: BUDGET });
       switchPhase("franchise");
     });

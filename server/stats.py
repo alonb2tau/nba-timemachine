@@ -33,13 +33,15 @@ _HEADERS = {
 }
 
 
-async def upsert_run(session_id: str, patch: dict) -> None:
-    """One row per anonymous session, updated in place at each checkpoint
-    — merge-duplicates on session_id means every call is just 'update
-    what changed', so a run's row always reflects how far it got."""
+async def upsert_run(run_id: str, patch: dict) -> None:
+    """One row per *game*, not per browser — merge-duplicates on run_id
+    means every checkpoint within the same playthrough updates the same
+    row, but starting a new game (a fresh run_id, minted client-side in
+    web/js/stats.js's startNewRun()) always gets its own row, even from
+    the same browser tab that already has one."""
     if not ENABLED:
         return
-    payload = {"session_id": session_id, **patch}
+    payload = {"run_id": run_id, **patch}
     async with httpx.AsyncClient(timeout=5) as client:
         resp = await client.post(
             f"{SUPABASE_URL}/rest/v1/runs",
@@ -108,8 +110,18 @@ def summarize_runs(runs: list[dict]) -> dict:
     completed_all = [r for r in runs if r.get("season_complete")]
     in_progress = [r for r in runs if r.get("season_started") and not r.get("season_complete")]
 
+    unique_sessions = len({r["session_id"] for r in runs if r.get("session_id")})
+
+    day_counts: dict[str, int] = {}
+    for r in runs:
+        created = r.get("created_at")
+        if created:
+            day_counts[created[:10]] = day_counts.get(created[:10], 0) + 1
+    runs_by_day = [{"date": d, "count": c} for d, c in sorted(day_counts.items())]
+
     return {
         "total_runs": total,
+        "unique_sessions": unique_sessions,
         "difficulty_chosen": sum(1 for r in runs if r.get("difficulty")),
         "draft_completed": sum(1 for r in runs if r.get("draft_completed")),
         "season_started": sum(1 for r in runs if r.get("season_started")),
@@ -121,4 +133,5 @@ def summarize_runs(runs: list[dict]) -> dict:
         "playoff_result_breakdown": [
             {"result": k, "count": v} for k, v in sorted(playoff_counts.items(), key=lambda kv: -kv[1])
         ],
+        "runs_by_day": runs_by_day,
     }
