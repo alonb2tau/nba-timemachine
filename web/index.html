@@ -4,6 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NBA Time Machine</title>
+<script>
+  // set before first paint so there's no flash of the wrong theme
+  (function () {
+    var stored = localStorage.getItem("nba_tm_theme");
+    var theme = stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -22,7 +30,10 @@
       <span class="phase-step" data-phase="season">Season</span>
       <span class="phase-step" data-phase="playoffs">Playoffs</span>
     </nav>
-    <div id="topbar-stat" class="topbar-stat"></div>
+    <div class="topbar-right">
+      <div id="topbar-stat" class="topbar-stat"></div>
+      <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Toggle dark mode" title="Toggle dark mode"></button>
+    </div>
   </header>
 
   <main id="app">
@@ -355,6 +366,7 @@
 
   <div id="toast" class="toast hidden"></div>
 
+  <script src="js/theme.js"></script>
   <script src="js/stats.js"></script>
   <script src="js/data.js"></script>
   <script src="js/assets.js"></script>

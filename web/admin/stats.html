@@ -4,6 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>NBA Time Machine — Stats</title>
+<script>
+  (function () {
+    var stored = localStorage.getItem("nba_tm_theme");
+    var theme = stored || (matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    document.documentElement.setAttribute("data-theme", theme);
+  })();
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -11,7 +18,7 @@
 <style>
   body { max-width: 960px; margin: 0 auto; padding: 20px; }
   .admin-gate { max-width: 340px; margin: 80px auto; text-align: center; }
-  .admin-gate input { width: 100%; margin: 12px 0; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 4px; font-size: 14px; }
+  .admin-gate input { width: 100%; margin: 12px 0; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 4px; font-size: 14px; background: var(--panel); color: var(--ink); }
   .admin-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 24px; }
   .admin-section { margin-bottom: 28px; }
   table.admin-table { width: 100%; border-collapse: collapse; font-size: 13px; }

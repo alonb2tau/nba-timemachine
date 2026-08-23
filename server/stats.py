@@ -13,9 +13,12 @@ Every function here degrades to a no-op / empty result if
 SUPABASE_URL / SUPABASE_SERVICE_KEY aren't set, so local dev without
 those env vars still runs fine.
 """
+import logging
 import os
 
 import httpx
+
+log = logging.getLogger("uvicorn.error")
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "").rstrip("/")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY", "")
@@ -38,11 +41,13 @@ async def upsert_run(session_id: str, patch: dict) -> None:
         return
     payload = {"session_id": session_id, **patch}
     async with httpx.AsyncClient(timeout=5) as client:
-        await client.post(
+        resp = await client.post(
             f"{SUPABASE_URL}/rest/v1/runs",
             headers={**_HEADERS, "Prefer": "resolution=merge-duplicates"},
             json=payload,
         )
+        if resp.status_code >= 400:
+            log.warning("stats upsert failed (%s): %s", resp.status_code, resp.text[:500])
 
 
 async def fetch_all_runs() -> list[dict]:
