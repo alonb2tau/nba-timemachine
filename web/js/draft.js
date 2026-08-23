@@ -125,8 +125,23 @@ function afterPick() {
   render();
 }
 
+/** Why a row is greyed out — same idea as hub.js's substitution-mismatch
+ * toast, so the draft screen stops failing silently on a bad click. */
+function ineligibilityReason(player) {
+  if (state.pickedNames.has(player.name)) return `You already have ${player.name} on the roster.`;
+  if (!openBucketsAvailable().has(posBucket(player.pos))) return `No open ${posBucket(player.pos) === "G" ? "guard" : posBucket(player.pos) === "F" ? "forward" : "center"} slot left.`;
+  if (player.price > maxAffordable()) return `Can't afford ${player.name} — €${player.price}M with only €${maxAffordable().toFixed(1)}M left to spend safely.`;
+  return "Not eligible right now.";
+}
+
+function coachIneligibilityReason(coach) {
+  if (state.coach) return "You've already hired a head coach.";
+  if (coach.price > maxAffordableForCoach()) return `Can't afford ${coach.name} — €${coach.price}M with only €${maxAffordableForCoach().toFixed(1)}M left to spend safely.`;
+  return "Not eligible right now.";
+}
+
 function pickPlayer(player) {
-  if (!isEligible(player)) return;
+  if (!isEligible(player)) { toast(ineligibilityReason(player)); return; }
   const bucket = posBucket(player.pos);
   // prefer an open starter slot of this bucket, else bench
   let slot = state.starters.find(s => !s.player && s.pos === bucket)
@@ -139,7 +154,7 @@ function pickPlayer(player) {
 }
 
 function pickCoach(coach) {
-  if (!isCoachEligible(coach)) return;
+  if (!isCoachEligible(coach)) { toast(coachIneligibilityReason(coach)); return; }
   state.coach = coach;
   state.budget = Math.round((state.budget - coach.price) * 10) / 10;
   afterPick();
@@ -349,10 +364,10 @@ function renderDraw() {
   $("draw-players").innerHTML = rowsHtml;
 
   if (team.coach) {
-    $("draw-players").querySelector(".coach-row-in-draft").addEventListener("click", () => pickCoach(team.coach));
+    bindActivate($("draw-players").querySelector(".coach-row-in-draft"), () => pickCoach(team.coach));
   }
   $("draw-players").querySelectorAll(".player-row:not(.coach-row-in-draft)").forEach((row, i) => {
-    row.addEventListener("click", () => pickPlayer(players[i]));
+    bindActivate(row, () => pickPlayer(players[i]));
   });
 }
 

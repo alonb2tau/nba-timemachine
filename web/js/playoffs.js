@@ -14,7 +14,7 @@
  */
 
 let PLAYOFFS = null;
-let PO_LIVE = null; // { a, b, you, opp, engine, quarterStep, halftimeChosen, awaitingClutch, clutchResolved, clutchResult, onDone, finished }
+let PO_LIVE = null; // { a, b, you, opp, engine, halfStep, halftimeChosen, awaitingClutch, clutchResolved, clutchResult, onDone, finished }
 
 function mkSeries(a, b) { return { a, b, gamesA: 0, gamesB: 0, winner: null }; }
 
@@ -158,7 +158,7 @@ function beginUserGame(action, bias) {
   const engine = newGameEngine(HUB.starters, HUB.bench, HUB.tactics, { srs: opp.srs }, true, HUB.coach);
   engine.applyPregameBias(bias);
   PO_LIVE = {
-    a, b, you, opp, engine, quarterStep: 0, halftimeChosen: false,
+    a, b, you, opp, engine, halfStep: 0, halftimeChosen: false,
     awaitingClutch: false, showingClutchResult: false, clutchResolved: false, clutchResult: null, finished: null,
     onDone: (winner) => {
       if (isSeries) {
@@ -192,12 +192,12 @@ function beginUserGame(action, bias) {
 
 function advancePoGame() {
   const live = PO_LIVE;
-  if (live.quarterStep < 4) {
-    if (live.quarterStep === 2 && !live.halftimeChosen) return;
-    live.quarterStep++;
-    live.engine.playQuarter(live.quarterStep);
+  if (live.halfStep < 2) {
+    if (live.halfStep === 1 && !live.halftimeChosen) return;
+    live.halfStep++;
+    live.engine.playHalf(live.halfStep);
   }
-  if (live.quarterStep === 4 && !live.clutchResolved) {
+  if (live.halfStep === 2 && !live.clutchResolved) {
     live.clutchResolved = true;
     const totals = live.engine.totals();
     if (Math.abs(totals.you - totals.opp) <= CLUTCH_MARGIN) {
@@ -206,8 +206,17 @@ function advancePoGame() {
       return;
     }
   }
-  if (live.quarterStep === 4 && !live.awaitingClutch) { finishPoGame(); return; }
+  if (live.halfStep === 2 && !live.awaitingClutch) { finishPoGame(); return; }
   renderPoLive();
+}
+
+/** Freeze a choice panel on the pick the user just made for a beat, so a
+ * decision-heavy moment (halftime/pregame/clutch) gets a visible "locked
+ * in" acknowledgment instead of jumping straight to the next screen. */
+function lockInChoice(containerId, chosenBtn, after) {
+  $(containerId).querySelectorAll("button").forEach(b => { b.disabled = true; });
+  chosenBtn.classList.add("chosen");
+  setTimeout(after, 420);
 }
 
 function choosePoHalftime(bias) {
@@ -217,9 +226,11 @@ function choosePoHalftime(bias) {
 }
 
 function takeClutchShot(player, shotType) {
+  const before = PO_LIVE.engine.totals();
+  const marginBefore = before.you - before.opp; // you - opp, before this possession
   const result = resolveClutchShot(player, shotType);
   PO_LIVE.engine.applyClutchShot(result.pts, 0);
-  PO_LIVE.clutchResult = { player, shotType, ...result };
+  PO_LIVE.clutchResult = { player, shotType, marginBefore, ...result };
   PO_LIVE.awaitingClutch = false;
   PO_LIVE.showingClutchResult = true;
   PLAYOFFS.clutchLog.push({ made: result.made, player: player.name, shotType, pts: result.pts, opponent: PO_LIVE.opp.name });
@@ -233,8 +244,17 @@ function clutchContinue() {
 
 function finishPoGame() {
   const live = PO_LIVE;
-  const totals = live.engine.totals();
-  const won = totals.you >= totals.opp;
+  const clutch = live.clutchResult;
+  let totals = live.engine.totals();
+  let won;
+  if (clutch && !clutch.made && clutch.marginBefore <= 0) {
+    // the ball was in the star's hands with the game tied or already slipping away, and the shot
+    // didn't fall — that's the season right there, no second life via a lucky overtime bounce.
+    won = false;
+  } else {
+    while (totals.you === totals.opp) totals = live.engine.playOvertime();
+    won = totals.you > totals.opp;
+  }
   const winner = won ? live.you : live.opp;
   const score = live.a === live.you ? [totals.you, totals.opp] : [totals.opp, totals.you];
   live.finished = { winner, score, box: live.engine.boxScores().you, won };
@@ -290,7 +310,7 @@ function renderHero() {
   $("pregame-choices").innerHTML = PREGAME_CHOICES.map(c =>
     `<button data-bias="${c.bias}">${c.label}</button>`).join("");
   $("pregame-choices").querySelectorAll("button").forEach(btn =>
-    btn.addEventListener("click", () => beginUserGame(action, Number(btn.dataset.bias))));
+    btn.addEventListener("click", () => lockInChoice("pregame-choices", btn, () => beginUserGame(action, Number(btn.dataset.bias)))));
 }
 
 // ------------------------------------------------------- ESPN-style bracket
@@ -366,6 +386,7 @@ function renderBracket() {
       <div class="bx-conf-title">Western Conference</div>
       <div class="bx-conf-title">Eastern Conference</div>
     </div>
+    <span class="bx-scroll-hint">&larr; Scroll to see the full bracket &rarr;</span>
     <div class="bx-grid">
       <div class="bx-headers">${headerRow(["Play-In", "1st Round", "Conf. Semis", "Conf. Finals", "", "Conf. Finals", "Conf. Semis", "1st Round", "Play-In"])}</div>
       <div class="bx-body">
@@ -388,17 +409,17 @@ function renderPoLive() {
   $("po-opp-name").innerHTML = teamTagHtml(live.opp);
   $("po-you-score").textContent = totals.you;
   $("po-opp-score").textContent = totals.opp;
-  $("po-quarter").textContent = live.quarterStep >= 4 ? "FINAL" : `Q${live.quarterStep + 1}`;
+  $("po-quarter").textContent = live.halfStep >= 2 ? "FINAL" : live.halfStep === 0 ? "1st Half" : "2nd Half";
   $("po-quarter-log").innerHTML = live.engine.quarters.map((q, i) =>
-    `<span class="qrow ${q.clutch ? "qrow-clutch" : ""}">${q.clutch ? "Clutch" : `Q${i + 1}`}: ${q.you}-${q.opp}</span>`).join("");
+    `<span class="qrow ${q.clutch ? "qrow-clutch" : ""}">${q.clutch ? "Clutch" : q.ot ? "OT" : `Q${i + 1}`}: ${q.you}-${q.opp}</span>`).join("");
 
-  const waitingOnHalftime = live.quarterStep === 2 && !live.halftimeChosen;
+  const waitingOnHalftime = live.halfStep === 1 && !live.halftimeChosen;
   $("po-halftime-panel").classList.toggle("hidden", !waitingOnHalftime);
   if (waitingOnHalftime) {
     $("po-halftime-options").innerHTML = HALFTIME_CHOICES.map(c =>
       `<button data-bias="${c.bias}">${c.label}</button>`).join("");
     $("po-halftime-options").querySelectorAll("button").forEach(btn =>
-      btn.addEventListener("click", () => choosePoHalftime(Number(btn.dataset.bias))));
+      btn.addEventListener("click", () => lockInChoice("po-halftime-options", btn, () => choosePoHalftime(Number(btn.dataset.bias)))));
   }
 
   const advBtn = $("po-advance-btn"), boxDiv = $("po-box-score"), clutchDiv = $("po-clutch-panel");
@@ -412,7 +433,7 @@ function renderPoLive() {
     boxDiv.classList.add("hidden");
     clutchDiv.classList.remove("hidden");
     renderClutchResult();
-  } else if (live.quarterStep >= 4) {
+  } else if (live.halfStep >= 2) {
     advBtn.classList.add("hidden");
     clutchDiv.classList.add("hidden");
     boxDiv.classList.remove("hidden");
@@ -421,7 +442,7 @@ function renderPoLive() {
     clutchDiv.classList.add("hidden");
     boxDiv.classList.add("hidden");
     advBtn.classList.toggle("hidden", waitingOnHalftime);
-    advBtn.textContent = `Simulate Q${live.quarterStep + 1}`;
+    advBtn.textContent = live.halfStep === 0 ? "Simulate 1st Half" : "Simulate 2nd Half";
   }
 }
 
@@ -436,8 +457,9 @@ function renderClutchPanel() {
   $("clutch-picker").classList.remove("hidden");
 
   $("clutch-situation").textContent = margin < 0
-    ? `You trail by ${-margin}. Final possession.`
-    : margin === 0 ? "Tied game. Final possession." : `You lead by ${margin}. Final possession.`;
+    ? `You trail by ${-margin}. Final possession — miss this and the season's over.`
+    : margin === 0 ? "Tied game. Final possession — miss this and the season's over."
+    : `You lead by ${margin}. Final possession.`;
   $("clutch-shot-label").textContent = shotType === "three"
     ? "You need a three to tie or win it. Who's taking it?"
     : margin > 0 ? "A bucket here puts it away. Who do you want the ball in their hands?"
@@ -450,7 +472,7 @@ function renderClutchPanel() {
       <div class="clutch-stats">${p.pts} PPG &middot; ${Math.round((p.fg2_pct || 0) * 100)}% 2PT &middot; ${Math.round((p.fg3_pct || 0) * 100)}% 3PT</div>
     </button>`).join("");
   $("clutch-candidates").querySelectorAll(".clutch-card").forEach((btn, i) =>
-    btn.addEventListener("click", () => takeClutchShot(candidates[i], shotType)));
+    btn.addEventListener("click", () => lockInChoice("clutch-candidates", btn, () => takeClutchShot(candidates[i], shotType))));
 }
 
 function renderClutchResult() {

@@ -89,9 +89,9 @@ function renderHub() {
 
   if (HUB.subMode) {
     $("hub-starters").querySelectorAll(".hub-slot.selectable").forEach(el =>
-      el.addEventListener("click", () => selectForSub(el.dataset.list, Number(el.dataset.idx))));
+      bindActivate(el, () => selectForSub(el.dataset.list, Number(el.dataset.idx))));
     $("hub-bench").querySelectorAll(".hub-slot.selectable").forEach(el =>
-      el.addEventListener("click", () => selectForSub(el.dataset.list, Number(el.dataset.idx))));
+      bindActivate(el, () => selectForSub(el.dataset.list, Number(el.dataset.idx))));
   }
 
   $("sub-mode-btn").textContent = HUB.subMode ? "Done substituting" : "Substitute";

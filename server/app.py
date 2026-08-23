@@ -9,9 +9,11 @@ Run with:
 (run from the project root so the relative paths below resolve)
 """
 import json
+import time
+from collections import defaultdict, deque
 from pathlib import Path
 
-from fastapi import FastAPI, Header, HTTPException
+from fastapi import FastAPI, Header, HTTPException, Request
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -63,6 +65,12 @@ def get_season(year: int):
     return FileResponse(path, media_type="application/json")
 
 
+KNOWN_EVENTS = {
+    "difficulty_chosen", "franchise_picked", "draft_completed",
+    "season_started", "season_checkpoint", "season_finished",
+}
+
+
 class StatEvent(BaseModel):
     run_id: str
     session_id: str
@@ -89,10 +97,31 @@ EVENT_FLAGS = {
 }
 
 
+EVENT_RATE_LIMIT = 30  # events
+EVENT_RATE_WINDOW = 60  # seconds — generous for genuine play, tight for a script
+_recent_events: dict[str, deque] = defaultdict(deque)
+
+
+def _rate_limited(client_ip: str) -> bool:
+    now = time.time()
+    hits = _recent_events[client_ip]
+    while hits and now - hits[0] > EVENT_RATE_WINDOW:
+        hits.popleft()
+    if len(hits) >= EVENT_RATE_LIMIT:
+        return True
+    hits.append(now)
+    return False
+
+
 @app.post("/api/stats/event")
-async def post_stat_event(body: StatEvent):
+async def post_stat_event(body: StatEvent, request: Request):
     if not stats.ENABLED:
         return {"ok": False, "reason": "stats not configured"}
+    if body.event not in KNOWN_EVENTS:
+        raise HTTPException(400, "unknown event")
+    client_ip = request.client.host if request.client else "unknown"
+    if _rate_limited(client_ip):
+        raise HTTPException(429, "too many events")
     patch = body.model_dump(exclude={"run_id", "event"}, exclude_none=True)
     patch.update(EVENT_FLAGS.get(body.event, {}))
     await stats.upsert_run(body.run_id, patch)

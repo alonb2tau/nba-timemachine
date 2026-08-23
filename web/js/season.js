@@ -34,8 +34,9 @@ function simulateGamesBulk(count) {
   for (let i = 0; i < count && SEASON.gameIndex < SEASON.schedule.length; i++) {
     const opp = SEASON.schedule[SEASON.gameIndex];
     const eng = newGameEngine(HUB.starters, HUB.bench, HUB.tactics, opp, SEASON.gameIndex % 2 === 0, HUB.coach);
-    const totals = eng.playInstant();
-    const won = totals.you >= totals.opp;
+    let totals = eng.playInstant();
+    while (totals.you === totals.opp) totals = eng.playOvertime(); // basketball has no ties — sim one more mini-period until it breaks
+    const won = totals.you > totals.opp;
     const margin = Math.abs(totals.you - totals.opp);
 
     if (won) {

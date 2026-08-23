@@ -21,7 +21,7 @@
   <header class="topbar">
     <div class="brand">
       <span class="brand-mark">NBA</span>
-      <span class="brand-name">Time Machine</span>
+      <h1 class="brand-name">Time Machine</h1>
     </div>
     <nav id="phase-nav" class="phase-nav">
       <span class="phase-step" data-phase="franchise">Franchise</span>
@@ -63,7 +63,10 @@
     <section id="phase-franchise" class="phase hidden">
       <section class="franchise-panel">
         <h2>Choose Your Franchise</h2>
-        <p class="franchise-intro">Pick the real NBA franchise you'll run — its conference, division, colors and logo carry through the whole season. Then name your team.</p>
+        <div class="franchise-intro-row">
+          <p class="franchise-intro">Pick the real NBA franchise you'll run — its conference, division, colors and logo carry through the whole season. Then name your team.</p>
+          <button id="franchise-surprise-btn" class="btn ghost small">Surprise me</button>
+        </div>
         <div id="franchise-grid" class="franchise-grid"></div>
       </section>
       <section class="franchise-name-panel">
@@ -71,6 +74,7 @@
         <input id="franchise-name-input" type="text" class="franchise-name-input" placeholder="e.g. The Sunset Riders" maxlength="40">
         <div id="franchise-selected-preview" class="franchise-selected-preview hidden"></div>
         <button id="franchise-confirm-btn" class="btn primary full" disabled>Begin Draft</button>
+        <p id="franchise-confirm-hint" class="franchise-confirm-hint"></p>
       </section>
     </section>
 
@@ -158,6 +162,7 @@
 
         <section class="hub-tactics">
           <h2>Game Plan</h2>
+          <h3 class="hub-subhead tactic-subhead">Offense</h3>
           <div class="tactic-group" data-key="pace">
             <div class="tactic-label">Pace</div>
             <div class="tactic-options">
@@ -174,20 +179,21 @@
               <button data-val="three">Fire from three</button>
             </div>
           </div>
-          <div class="tactic-group" data-key="scheme">
-            <div class="tactic-label">Defensive scheme</div>
-            <div class="tactic-options">
-              <button data-val="man">Lockdown man</button>
-              <button data-val="solid">Solid</button>
-              <button data-val="switch">Switch everything</button>
-            </div>
-          </div>
           <div class="tactic-group" data-key="offense">
             <div class="tactic-label">Ball movement</div>
             <div class="tactic-options">
               <button data-val="iso">Isolation-heavy</button>
               <button data-val="balanced">Balanced</button>
               <button data-val="motion">Motion offense</button>
+            </div>
+          </div>
+          <h3 class="hub-subhead tactic-subhead">Defense</h3>
+          <div class="tactic-group" data-key="scheme">
+            <div class="tactic-label">Defensive scheme</div>
+            <div class="tactic-options">
+              <button data-val="man">Lockdown man</button>
+              <button data-val="solid">Solid</button>
+              <button data-val="switch">Switch everything</button>
             </div>
           </div>
           <div class="tactic-group" data-key="boards">
@@ -198,6 +204,7 @@
               <button data-val="getback">Get back on D</button>
             </div>
           </div>
+          <h3 class="hub-subhead tactic-subhead">Rotation</h3>
           <div class="tactic-group" data-key="rotation">
             <div class="tactic-label">Bench usage</div>
             <div class="tactic-options">

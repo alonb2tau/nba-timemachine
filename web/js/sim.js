@@ -213,11 +213,24 @@ function newGameEngine(starters, bench, tactics, opponent, isHome, coach) {
       for (let q = 1; q <= 4; q++) this.playQuarter(q);
       return this.totals();
     },
+    /** Play both quarters of one half (1 or 2) — used by the playoffs live view, which pauses for a decision once per half instead of once per quarter. */
+    playHalf(half) {
+      this.playQuarter(half * 2 - 1);
+      this.playQuarter(half * 2);
+      return this.totals();
+    },
     applyPregameBias(delta) { pregameBias = delta; },
     applyHalftimeBias(delta) { halftimeBias = delta; },
     /** A named final-possession result, so it shows up in the quarter log as its own line. */
     applyClutchShot(youPts, oppPts) {
       this.quarters.push({ you: youPts, opp: oppPts, clutch: true });
+    },
+    /** Regulation (plus a resolved clutch shot) still tied — a short extra period, repeated until someone actually has more points. Real overtime is ~5 of a 12-minute quarter's length. */
+    playOvertime() {
+      const [you, opp] = simQuarter(youSRS, oppSRS, tactics, homeAdv, 0);
+      const scaled = { you: Math.round(you * 0.42), opp: Math.round(opp * 0.42) };
+      this.quarters.push({ you: scaled.you, opp: scaled.opp, ot: true });
+      return this.totals();
     },
     totals() {
       return this.quarters.reduce((acc, q) => ({ you: acc.you + q.you, opp: acc.opp + q.opp }), { you: 0, opp: 0 });
@@ -225,7 +238,7 @@ function newGameEngine(starters, bench, tactics, opponent, isHome, coach) {
     boxScores() {
       const t = this.totals();
       return {
-        you: genBoxScore(starters, bench, t.you, t.you >= t.opp),
+        you: genBoxScore(starters, bench, t.you, t.you > t.opp),
         opp: null, // opponent box score isn't needed for v1 — only the user's roster matters here
       };
     },

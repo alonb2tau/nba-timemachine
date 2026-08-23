@@ -16,6 +16,20 @@ function esc(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+/** Make a non-<button> element (a div standing in as a click target — a
+ * player row, franchise card, hub slot) reachable and operable by keyboard:
+ * focusable, announced as a button, Enter/Space activate it exactly like a
+ * click. The draft and hub screens are built entirely out of these. */
+function bindActivate(el, handler) {
+  if (!el) return;
+  el.tabIndex = 0;
+  el.setAttribute("role", "button");
+  el.addEventListener("click", handler);
+  el.addEventListener("keydown", e => {
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); handler(e); }
+  });
+}
+
 function playerPhotoUrl(code) {
   return `https://www.basketball-reference.com/req/${ASSET_VER}/images/headshots/${code}.jpg`;
 }
@@ -39,7 +53,7 @@ function faceHtml(name, code, colors, size) {
   const url = code ? playerPhotoUrl(code) : null;
   const fallback = `<div class="face-fallback" style="display:${url ? "none" : "flex"};width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;background:${esc(bg)};">${esc(initialsOf(name))}</div>`;
   const img = url
-    ? `<img src="${esc(url)}" alt="" class="face-img" style="width:${size}px;height:${size}px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
+    ? `<img src="${esc(url)}" alt="${esc(name)}" class="face-img" style="width:${size}px;height:${size}px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
     : "";
   return `<span class="face-wrap" style="width:${size}px;height:${size}px;">${img}${fallback}</span>`;
 }
@@ -50,7 +64,7 @@ function coachFaceHtml(name, code, colors, size) {
   const url = code ? coachPhotoUrl(code) : null;
   const fallback = `<div class="face-fallback" style="display:${url ? "none" : "flex"};width:${size}px;height:${size}px;font-size:${Math.round(size * 0.38)}px;background:${esc(bg)};">${esc(initialsOf(name))}</div>`;
   const img = url
-    ? `<img src="${esc(url)}" alt="" class="face-img" style="width:${size}px;height:${size}px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
+    ? `<img src="${esc(url)}" alt="${esc(name)}" class="face-img" style="width:${size}px;height:${size}px;" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">`
     : "";
   return `<span class="face-wrap" style="width:${size}px;height:${size}px;">${img}${fallback}</span>`;
 }

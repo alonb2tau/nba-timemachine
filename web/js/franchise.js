@@ -45,16 +45,30 @@ function franchiseCardHtml(o) {
   </div>`;
 }
 
+/** The draft already leans on randomness as its core mechanic (random
+ * season/team draws) — offering a random franchise pick here is an
+ * easy, on-brand way to shortcut the 30-card wall for anyone undecided. */
+function surpriseFranchise() {
+  const opts = franchiseOptions();
+  if (!opts.length) return;
+  selectFranchise(rand(opts).code);
+}
+
 function renderFranchisePicker() {
   const opts = franchiseOptions();
   $("franchise-grid").innerHTML = opts.map(franchiseCardHtml).join("");
   $("franchise-grid").querySelectorAll(".franchise-card").forEach(el => {
-    el.addEventListener("click", () => selectFranchise(el.dataset.code));
+    bindActivate(el, () => selectFranchise(el.dataset.code));
   });
 
   const selected = opts.find(o => o.code === franchiseSelectedCode);
   const nameFilled = $("franchise-name-input").value.trim().length > 0;
   $("franchise-confirm-btn").disabled = !selected || !nameFilled;
+  $("franchise-confirm-hint").textContent = !selected && !nameFilled
+    ? "Pick a team and name it to continue."
+    : !selected ? "Pick a team to continue."
+    : !nameFilled ? "Name your team to continue."
+    : "";
 
   const preview = $("franchise-selected-preview");
   if (selected) {
@@ -66,16 +80,39 @@ function renderFranchisePicker() {
   }
 }
 
+function franchiseLoadError(msg, retry) {
+  $("franchise-grid").innerHTML = `<div class="load-error">
+    <p>${esc(msg)}</p>
+    <button id="franchise-retry-btn" class="btn primary small">Try again</button>
+  </div>`;
+  $("franchise-retry-btn").addEventListener("click", retry);
+}
+
 async function initFranchise() {
-  seasons = await fetchSeasonList();
-  if (!seasons.length) {
-    $("franchise-grid").innerHTML = "<p>No season data yet — the scraper is still running. Reload in a bit.</p>";
+  $("franchise-grid").innerHTML = `<div class="load-spinner" role="status">Loading franchises&hellip;</div>`;
+  let list;
+  try {
+    list = await fetchSeasonList();
+  } catch (e) {
+    franchiseLoadError("Couldn't reach the server for season data. Check your connection and try again.", initFranchise);
     return;
   }
-  await preloadAllSeasons(seasons);
+  seasons = list;
+  if (!seasons.length) {
+    franchiseLoadError("No season data yet — the scraper is still running.", initFranchise);
+    return;
+  }
+  try {
+    await preloadAllSeasons(seasons);
+  } catch (e) {
+    franchiseLoadError("Season data failed to load. Check your connection and try again.", initFranchise);
+    return;
+  }
+  seasons = seasons.filter(s => SEASONS_CACHE.has(s.year)); // drop any that failed — the rest of the app only ever reads from the cache anyway
   buildHistoryIndexes();
 
   renderFranchisePicker();
   $("franchise-name-input").addEventListener("input", renderFranchisePicker);
   $("franchise-confirm-btn").addEventListener("click", confirmFranchise);
+  $("franchise-surprise-btn").addEventListener("click", surpriseFranchise);
 }

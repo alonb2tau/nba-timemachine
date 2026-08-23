@@ -25,7 +25,20 @@ async function fetchSeason(year) {
   return data;
 }
 
-/** Load every season up front so drawNew() can pick randomly with no network wait. */
+/**
+ * Load every season up front so drawNew() can pick randomly with no network
+ * wait. One bad season shouldn't take down the ones that loaded fine —
+ * Promise.allSettled means a single flaky fetch degrades the pool of
+ * available seasons instead of aborting the whole preload. Only throws (so
+ * the caller can show a real error) if literally nothing came through.
+ */
 async function preloadAllSeasons(seasonList) {
-  await Promise.all(seasonList.map(s => fetchSeason(s.year)));
+  const results = await Promise.allSettled(seasonList.map(s => fetchSeason(s.year)));
+  const failed = results.filter(r => r.status === "rejected");
+  if (failed.length) {
+    console.warn(`${failed.length}/${seasonList.length} seasons failed to load`, failed.map(r => r.reason));
+  }
+  if (failed.length === seasonList.length) {
+    throw new Error("Every season failed to load");
+  }
 }
