@@ -28,6 +28,7 @@
   --radius-sm: 4px;
   --radius: 6px;
   --radius-lg: 8px;
+  --ease-prestige: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* dark mode — a tuned counterpart palette, not a literal inversion: the
@@ -127,9 +128,10 @@ h1, h2, h3, .headline {
   width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
   background: transparent; border: 1.5px solid #3a3d45; border-radius: 50%;
   font-size: 16px; line-height: 1; cursor: pointer; padding: 0;
-  transition: border-color 0.12s, transform 0.12s;
+  transition: border-color 0.15s, transform 0.22s var(--ease-prestige);
 }
-.theme-toggle-btn:hover { border-color: var(--red); transform: scale(1.06); }
+.theme-toggle-btn:hover { border-color: var(--red); transform: scale(1.1) rotate(-12deg); }
+.theme-toggle-btn:active { transform: scale(0.92) rotate(-12deg); transition-duration: 0.08s; }
 
 /* ------------------------------------------------------------------ app */
 #app { max-width: 1040px; margin: 0 auto; padding: 24px 24px 60px; }
@@ -170,12 +172,14 @@ h3.hub-subhead {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: border-color 0.12s, background 0.12s, color 0.12s;
+  transition: border-color 0.12s, background 0.12s, color 0.12s,
+              transform 0.18s var(--ease-prestige), box-shadow 0.18s var(--ease-prestige);
 }
-.btn:hover { border-color: var(--red); color: var(--red); }
+.btn:hover:not(:disabled) { border-color: var(--red); color: var(--red); transform: translateY(-2px); box-shadow: 0 6px 16px rgba(20,20,25,0.12); }
+.btn:active:not(:disabled) { transform: translateY(0) scale(0.97); transition-duration: 0.08s; box-shadow: 0 1px 4px rgba(20,20,25,0.1); }
 .btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .btn.primary { background: var(--red); border-color: var(--red); color: #fff; }
-.btn.primary:hover { background: var(--red-dark); border-color: var(--red-dark); color: #fff; }
+.btn.primary:hover:not(:disabled) { background: var(--red-dark); border-color: var(--red-dark); color: #fff; box-shadow: 0 8px 20px rgba(208,16,42,0.32); }
 .btn.primary:disabled:hover { background: var(--red); border-color: var(--red); }
 .btn.ghost { background: transparent; border-color: var(--line-strong); }
 .btn.small { padding: 6px 12px; font-size: 11px; }
@@ -195,7 +199,7 @@ h3.hub-subhead {
   min-height: 92px;
   padding: 10px 12px;
   display: flex; flex-direction: column; justify-content: space-between;
-  transition: border-color 0.12s;
+  transition: border-color 0.12s, transform 0.16s var(--ease-prestige), box-shadow 0.16s var(--ease-prestige);
 }
 .slot.empty, .hub-slot.empty { border-style: dashed; border-color: var(--line-strong); background: var(--surface); }
 .slot.filled, .hub-slot.filled { border-color: var(--line-strong); border-left: 3px solid var(--red); }
@@ -217,7 +221,8 @@ h3.hub-subhead {
 
 .hub-slot { cursor: default; }
 .hub-slot.selectable { cursor: pointer; }
-.hub-slot.selectable:hover { border-color: var(--red); }
+.hub-slot.selectable:hover { border-color: var(--red); box-shadow: 0 4px 14px rgba(208,16,42,0.12); transform: translateY(-2px); }
+.hub-slot.selectable:active { transform: translateY(0) scale(0.98); transition-duration: 0.08s; }
 .hub-slot.selected { border-color: var(--red); background: var(--red-tint); }
 
 /* ------------------------------------------------------------ draw card */
@@ -244,10 +249,11 @@ h3.hub-subhead {
   border: 1px solid var(--line);
   background: var(--panel);
   cursor: pointer;
-  transition: border-color 0.12s, box-shadow 0.12s;
+  transition: border-color 0.12s, box-shadow 0.16s var(--ease-prestige), transform 0.16s var(--ease-prestige);
 }
 .player-row:nth-child(even) { background: var(--surface); }
-.player-row:hover { border-color: var(--red); box-shadow: 0 1px 6px rgba(208,16,42,0.08); }
+.player-row:not(.ineligible):hover { border-color: var(--red); box-shadow: 0 4px 14px rgba(208,16,42,0.12); transform: translateY(-1px) scale(1.005); }
+.player-row:not(.ineligible):active { transform: translateY(0) scale(0.996); transition-duration: 0.08s; }
 .player-row.ineligible { opacity: 0.35; cursor: not-allowed; }
 
 .pr-id { flex: 0 0 200px; min-width: 0; }
@@ -302,8 +308,12 @@ h3.hub-subhead {
   flex: 1; background: var(--panel); border: 1.5px solid var(--line-strong);
   color: var(--ink-soft); padding: 8px 4px; border-radius: var(--radius-sm); font-size: 11px;
   font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; cursor: pointer;
+  transition: border-color 0.12s, color 0.12s, background 0.12s,
+              transform 0.15s var(--ease-prestige), box-shadow 0.15s var(--ease-prestige);
 }
-.tactic-options button:hover:not(.active) { border-color: var(--red); color: var(--red); }
+.tactic-options button:hover:not(.active) { border-color: var(--red); color: var(--red); transform: translateY(-1px); box-shadow: 0 3px 8px rgba(20,20,25,0.1); }
+.tactic-options button:active { transform: translateY(0) scale(0.96); transition-duration: 0.08s; }
+.tactic-options button.active:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(208,16,42,0.3); }
 .tactic-options button.active { border-color: var(--red); color: #fff; background: var(--red); }
 
 .team-rating-card {
@@ -331,8 +341,10 @@ h3.hub-subhead {
   align-items: center; gap: 8px;
   padding: 9px 10px; border-radius: var(--radius-sm); border: 1px solid var(--line);
   cursor: pointer;
+  transition: border-color 0.12s, box-shadow 0.16s var(--ease-prestige), transform 0.16s var(--ease-prestige);
 }
-.coach-row:hover { border-color: var(--red); box-shadow: 0 1px 6px rgba(208,16,42,0.08); }
+.coach-row:not(.ineligible):hover { border-color: var(--red); box-shadow: 0 4px 14px rgba(208,16,42,0.12); transform: translateY(-1px); }
+.coach-row:not(.ineligible):active { transform: translateY(0) scale(0.98); transition-duration: 0.08s; }
 .coach-row.selected { border-color: var(--red); background: var(--red-tint); border-width: 1.5px; }
 .coach-row.ineligible { opacity: 0.35; cursor: not-allowed; }
 .coach-row .name { font-weight: 700; font-size: 13px; }
@@ -379,10 +391,13 @@ h3.hub-subhead {
 .halftime-options button {
   text-align: left; background: var(--panel); border: 1.5px solid var(--line-strong);
   color: var(--ink); padding: 9px 12px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; font-weight: 500;
+  transition: border-color 0.12s, color 0.12s, background 0.12s,
+              transform 0.16s var(--ease-prestige), box-shadow 0.16s var(--ease-prestige);
 }
-.halftime-options button:hover { border-color: var(--red); color: var(--red); box-shadow: 0 1px 6px rgba(208,16,42,0.08); }
+.halftime-options button:hover:not(:disabled) { border-color: var(--red); color: var(--red); box-shadow: 0 4px 12px rgba(208,16,42,0.14); transform: translateY(-2px) translateX(2px); }
+.halftime-options button:active:not(:disabled) { transform: translateY(0) translateX(0) scale(0.98); transition-duration: 0.08s; }
 .halftime-options button.chosen, .pregame-choices button.chosen {
-  border-color: var(--red); background: var(--red); color: #fff; box-shadow: none;
+  border-color: var(--red); background: var(--red); color: #fff; box-shadow: none; transform: none;
 }
 .halftime-options button:disabled, .pregame-choices button:disabled { opacity: 0.55; cursor: default; }
 
@@ -396,7 +411,7 @@ h3.hub-subhead {
 
 /* ---------------------------------------------------------- playoffs */
 .bracket-title { text-align: center; font-family: "Oswald", sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); border: none; padding: 0; }
-.bracket { display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.bracket { display: flex; flex-direction: column; gap: 10px; align-items: center; min-width: 0; width: 100%; }
 .bracket-round { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .bracket-game {
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
@@ -505,12 +520,15 @@ h3.hub-subhead {
 /* --------------------------------------------------------- franchise picker */
 .franchise-panel, .franchise-name-panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 20px; margin-bottom: 18px; }
 .franchise-intro { color: var(--ink-soft); font-size: 13px; margin: -4px 0 14px; }
+.franchise-name-intro { color: var(--ink-soft); font-size: 13px; margin: -4px 0 14px; }
 .franchise-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
 .franchise-card {
   border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 10px; text-align: center;
   cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  transition: border-color 0.12s, background 0.12s, transform 0.16s var(--ease-prestige), box-shadow 0.16s var(--ease-prestige);
 }
-.franchise-card:hover { border-color: var(--red); box-shadow: 0 1px 6px rgba(208,16,42,0.08); }
+.franchise-card:hover { border-color: var(--red); box-shadow: 0 6px 16px rgba(208,16,42,0.14); transform: translateY(-3px); }
+.franchise-card:active { transform: translateY(-1px) scale(0.97); transition-duration: 0.08s; }
 .franchise-card.selected { border-color: var(--red); border-width: 2px; background: var(--red-tint); }
 .franchise-card-name { font-weight: 700; font-size: 13px; }
 .franchise-card-meta { font-size: 11px; color: var(--ink-faint); }
@@ -567,8 +585,11 @@ h3.hub-subhead {
 .pregame-choices button {
   background: var(--panel); border: 1.5px solid var(--line-strong); color: var(--ink);
   padding: 12px 16px; border-radius: var(--radius); font-size: 14px; cursor: pointer; font-weight: 500;
+  transition: border-color 0.12s, color 0.12s, background 0.12s,
+              transform 0.16s var(--ease-prestige), box-shadow 0.16s var(--ease-prestige);
 }
-.pregame-choices button:hover { border-color: var(--red); color: var(--red); box-shadow: 0 1px 6px rgba(208,16,42,0.08); }
+.pregame-choices button:hover:not(:disabled) { border-color: var(--red); color: var(--red); box-shadow: 0 4px 12px rgba(208,16,42,0.14); transform: translateY(-2px) translateX(2px); }
+.pregame-choices button:active:not(:disabled) { transform: translateY(0) translateX(0) scale(0.98); transition-duration: 0.08s; }
 
 /* ---------------------------------------------------------- ESPN bracket */
 .bx-conf-titles { display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -576,7 +597,7 @@ h3.hub-subhead {
   font-family: "Oswald", sans-serif; font-size: 13px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.05em; color: #fff; background: var(--black); padding: 6px 16px; border-radius: var(--radius-xs);
 }
-.bx-grid { overflow-x: auto; padding-bottom: 8px; }
+.bx-grid { overflow-x: auto; padding-bottom: 8px; min-width: 0; width: 100%; }
 .bx-headers, .bx-body {
   display: grid;
   grid-template-columns: 0.85fr 1fr 1fr 1fr 1.25fr 1fr 1fr 1fr 0.85fr;
@@ -636,9 +657,12 @@ h3.hub-subhead {
 .clutch-card {
   background: var(--panel); border: 1.5px solid var(--line-strong); border-radius: var(--radius); padding: 14px 16px;
   display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer; min-width: 130px;
+  transition: border-color 0.12s, background 0.12s,
+              transform 0.18s var(--ease-prestige), box-shadow 0.18s var(--ease-prestige);
 }
-.clutch-card:hover { border-color: var(--gold); box-shadow: 0 2px 10px rgba(201,162,39,0.25); }
-.clutch-card.chosen { border-color: var(--gold); background: var(--gold-tint); box-shadow: 0 2px 10px rgba(201,162,39,0.35); }
+.clutch-card:hover:not(:disabled) { border-color: var(--gold); box-shadow: 0 8px 22px rgba(201,162,39,0.3); transform: translateY(-4px) scale(1.02); }
+.clutch-card:active:not(:disabled) { transform: translateY(-1px) scale(0.98); transition-duration: 0.08s; }
+.clutch-card.chosen { border-color: var(--gold); background: var(--gold-tint); box-shadow: 0 2px 10px rgba(201,162,39,0.35); transform: none; }
 .clutch-card:disabled { opacity: 0.55; cursor: default; }
 .clutch-name { font-weight: 700; font-size: 13px; }
 .clutch-stats { font-size: 11px; color: var(--ink-faint); text-align: center; }
@@ -710,12 +734,15 @@ h3.hub-subhead {
 /* ------------------------------------------------------- mode / quick league */
 
 .mode-panel { text-align: center; padding: 40px 0; }
+.mode-intro { color: var(--ink-soft); font-size: 14px; max-width: 480px; margin: 0 auto 22px; line-height: 1.5; }
 .mode-options { display: flex; gap: 18px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
 .mode-card {
   width: 280px; text-align: left; padding: 22px; background: var(--panel);
   border: 1px solid var(--line); border-radius: var(--radius-lg); cursor: pointer; font: inherit;
+  transition: border-color 0.12s, transform 0.2s var(--ease-prestige), box-shadow 0.2s var(--ease-prestige);
 }
-.mode-card:hover { border-color: var(--red); box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+.mode-card:hover { border-color: var(--red); box-shadow: 0 10px 26px rgba(0,0,0,0.1); transform: translateY(-4px); }
+.mode-card:active { transform: translateY(-1px) scale(0.98); transition-duration: 0.08s; }
 .mode-card-title { font-family: "Oswald", sans-serif; font-size: 18px; font-weight: 700; text-transform: uppercase; color: var(--ink); margin-bottom: 8px; }
 .mode-card-sub { font-size: 13px; color: var(--ink-soft); line-height: 1.5; }
 
@@ -766,4 +793,24 @@ h3.hub-subhead {
 
 @media (min-width: 721px) {
   .bx-scroll-hint { display: none; }
+}
+
+/* ---------------------------------------------------- reduced motion --- */
+/* every hover/press lift added above is purely decorative — never load-
+   bearing for understanding state — so it's safe to strip entirely here */
+@media (prefers-reduced-motion: reduce) {
+  .btn, .mode-card, .franchise-card, .clutch-card, .tactic-options button,
+  .halftime-options button, .pregame-choices button, .player-row, .coach-row,
+  .hub-slot.selectable, .slot, .hub-slot, .theme-toggle-btn {
+    transition: none !important;
+  }
+  .btn:hover, .btn:active, .mode-card:hover, .mode-card:active,
+  .franchise-card:hover, .franchise-card:active, .clutch-card:hover, .clutch-card:active,
+  .tactic-options button:hover, .tactic-options button:active,
+  .halftime-options button:hover, .halftime-options button:active,
+  .pregame-choices button:hover, .pregame-choices button:active,
+  .player-row:hover, .player-row:active, .coach-row:hover, .coach-row:active,
+  .hub-slot.selectable:hover, .hub-slot.selectable:active, .theme-toggle-btn:hover, .theme-toggle-btn:active {
+    transform: none !important;
+  }
 }

@@ -41,6 +41,7 @@
     <!-- ============================= PHASE: DIFFICULTY SELECT ============================= -->
     <section id="phase-mode" class="phase">
       <section class="mode-panel">
+        <p class="mode-intro">Draft a dream roster from any of 16 real NBA seasons, then coach it through an 82-game season and a playoff run.</p>
         <h2>Choose your difficulty</h2>
         <div class="mode-options">
           <button id="diff-easy-btn" class="mode-card" data-budget="110" data-diff="easy">
@@ -61,20 +62,21 @@
 
     <!-- ============================= PHASE 0: FRANCHISE ============================= -->
     <section id="phase-franchise" class="phase hidden">
-      <section class="franchise-panel">
-        <h2>Choose Your Franchise</h2>
-        <div class="franchise-intro-row">
-          <p class="franchise-intro">Pick the real NBA franchise you'll run — its conference, division, colors and logo carry through the whole season. Then name your team.</p>
-          <button id="franchise-surprise-btn" class="btn ghost small">Surprise me</button>
-        </div>
-        <div id="franchise-grid" class="franchise-grid"></div>
-      </section>
       <section class="franchise-name-panel">
         <h2>Name Your Team</h2>
+        <p class="franchise-name-intro">Give your team a name, then pick the real NBA franchise it plays as below.</p>
         <input id="franchise-name-input" type="text" class="franchise-name-input" placeholder="e.g. The Sunset Riders" maxlength="40">
         <div id="franchise-selected-preview" class="franchise-selected-preview hidden"></div>
         <button id="franchise-confirm-btn" class="btn primary full" disabled>Begin Draft</button>
         <p id="franchise-confirm-hint" class="franchise-confirm-hint"></p>
+      </section>
+      <section class="franchise-panel">
+        <h2>Choose Your Franchise</h2>
+        <div class="franchise-intro-row">
+          <p class="franchise-intro">Pick the real NBA franchise you'll run — its conference, division, colors and logo carry through the whole season.</p>
+          <button id="franchise-surprise-btn" class="btn ghost small">Surprise me</button>
+        </div>
+        <div id="franchise-grid" class="franchise-grid"></div>
       </section>
     </section>
 
@@ -140,7 +142,7 @@
         <div id="hub-checkpoint-sub" class="cb-sub"></div>
         <button id="checkpoint-trade-btn" class="btn ghost small checkpoint-trade-btn">Look for another trade</button>
       </div>
-      <div class="hub-budget-row">
+      <div id="hub-budget-row" class="hub-budget-row">
         <span class="label">Unspent budget</span>
         <span id="hub-budget-val" class="val">€0.0M</span>
       </div>

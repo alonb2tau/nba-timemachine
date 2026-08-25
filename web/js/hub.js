@@ -112,6 +112,10 @@ function renderHub() {
       <div class="hub-coach-meta">${c.wins}-${c.losses} that season &middot; ${signedNum(c.srsBonus)} SRS &middot; €${c.price}M</div>
     </div>` : "";
 
+  // most drafts spend the full budget by design — showing "€0.0M unspent"
+  // as a prominent banner on the common case reads as an alarm about
+  // nothing, so only surface it when there's actually something to spend
+  $("hub-budget-row").classList.toggle("hidden", HUB.budget < 0.5);
   $("hub-budget-val").textContent = `€${HUB.budget.toFixed(1)}M`;
 
   const avgOvr = squadRating(HUB.starters, HUB.bench, HUB.tactics.rotation);
