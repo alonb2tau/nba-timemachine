@@ -200,7 +200,11 @@ function advancePoGame() {
   if (live.halfStep === 2 && !live.clutchResolved) {
     live.clutchResolved = true;
     const totals = live.engine.totals();
-    if (Math.abs(totals.you - totals.opp) <= CLUTCH_MARGIN) {
+    const diff = totals.you - totals.opp; // you - opp
+    // only a real do-or-die moment if you're tied or trailing — up on the
+    // scoreboard already means you don't need this shot to win, so there's
+    // nothing to ask
+    if (diff <= 0 && diff >= -CLUTCH_MARGIN) {
       live.awaitingClutch = true;
       renderPoLive();
       return;
@@ -244,17 +248,14 @@ function clutchContinue() {
 
 function finishPoGame() {
   const live = PO_LIVE;
-  const clutch = live.clutchResult;
   let totals = live.engine.totals();
-  let won;
-  if (clutch && !clutch.made && clutch.marginBefore <= 0) {
-    // the ball was in the star's hands with the game tied or already slipping away, and the shot
-    // didn't fall — that's the season right there, no second life via a lucky overtime bounce.
-    won = false;
-  } else {
-    while (totals.you === totals.opp) totals = live.engine.playOvertime();
-    won = totals.you > totals.opp;
-  }
+  // whoever has more points wins, same rule as everywhere else in this game
+  // — a missed clutch shot isn't a special-cased loss, it's just 0 points
+  // added. Miss it tied and the score is still tied, so the game genuinely
+  // goes to overtime; miss it trailing and you're still trailing, so you
+  // lose on the scoreboard, not on a rule.
+  while (totals.you === totals.opp) totals = live.engine.playOvertime();
+  const won = totals.you > totals.opp;
   const winner = won ? live.you : live.opp;
   const score = live.a === live.you ? [totals.you, totals.opp] : [totals.opp, totals.you];
   live.finished = { winner, score, box: live.engine.boxScores().you, won };
@@ -457,12 +458,10 @@ function renderClutchPanel() {
   $("clutch-picker").classList.remove("hidden");
 
   $("clutch-situation").textContent = margin < 0
-    ? `You trail by ${-margin}. Final possession — miss this and the season's over.`
-    : margin === 0 ? "Tied game. Final possession — miss this and the season's over."
-    : `You lead by ${margin}. Final possession.`;
+    ? `You trail by ${-margin}. Final possession — miss this and it's over.`
+    : "Tied game. Final possession — miss this and we play overtime.";
   $("clutch-shot-label").textContent = shotType === "three"
     ? "You need a three to tie or win it. Who's taking it?"
-    : margin > 0 ? "A bucket here puts it away. Who do you want the ball in their hands?"
     : "One shot to tie or win it. Who's taking it?";
 
   $("clutch-candidates").innerHTML = candidates.map((p, i) => `
