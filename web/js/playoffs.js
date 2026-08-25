@@ -19,7 +19,7 @@ let PO_LIVE = null; // { a, b, you, opp, engine, halfStep, halftimeChosen, await
 function mkSeries(a, b) { return { a, b, gamesA: 0, gamesB: 0, winner: null }; }
 
 function buildConferenceField(conf) {
-  const you = { conf: SEASON.yourConf, wins: SEASON.wins, losses: SEASON.losses, srs: teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach) };
+  const you = { conf: SEASON.yourConf, wins: SEASON.wins, losses: SEASON.losses, srs: teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach, HUB.triviaBonus) };
   const standings = conferenceStandings(SEASON.aiLeague, conf, SEASON_LENGTH, you);
   const top10 = standings.slice(0, 10).map((r, i) => ({ code: r.code, name: r.name, colors: r.colors, nba_id: r.nba_id, srs: r.srs, isYou: r.isYou, seed: i + 1 }));
   return {
@@ -155,7 +155,7 @@ function beginUserGame(action, bias) {
   const { a, b, isSeries, label, target } = action;
   const you = a.isYou ? a : b;
   const opp = a.isYou ? b : a;
-  const engine = newGameEngine(HUB.starters, HUB.bench, HUB.tactics, { srs: opp.srs }, true, HUB.coach);
+  const engine = newGameEngine(HUB.starters, HUB.bench, HUB.tactics, { srs: opp.srs }, true, HUB.coach, HUB.triviaBonus);
   engine.applyPregameBias(bias);
   PO_LIVE = {
     a, b, you, opp, engine, halfStep: 0, halftimeChosen: false,

@@ -44,9 +44,9 @@
         <p class="mode-intro">Draft a dream roster from any of 16 real NBA seasons, then coach it through an 82-game season and a playoff run.</p>
         <h2>Choose your difficulty</h2>
         <div class="mode-options">
-          <button id="diff-easy-btn" class="mode-card" data-budget="110" data-diff="easy">
+          <button id="diff-easy-btn" class="mode-card" data-budget="115" data-diff="easy">
             <div class="mode-card-title">Easy</div>
-            <div class="mode-card-sub">€110M draft budget — build a stacked roster.</div>
+            <div class="mode-card-sub">€115M draft budget — build a stacked roster.</div>
           </button>
           <button id="diff-medium-btn" class="mode-card" data-budget="100" data-diff="medium">
             <div class="mode-card-title">Medium</div>
@@ -55,6 +55,10 @@
           <button id="diff-hard-btn" class="mode-card" data-budget="90" data-diff="hard">
             <div class="mode-card-title">Hard</div>
             <div class="mode-card-sub">€90M draft budget — every pick has to count.</div>
+          </button>
+          <button id="diff-veryhard-btn" class="mode-card" data-budget="80" data-diff="veryhard">
+            <div class="mode-card-title">Very Hard</div>
+            <div class="mode-card-sub">€80M draft budget — you'll be the underdog all season.</div>
           </button>
         </div>
       </section>
@@ -128,9 +132,31 @@
           </div>
           <div id="squad-coach-line" class="squad-coach-line"></div>
           <div class="squad-complete-actions">
-            <button id="goto-hub-btn" class="btn primary">Continue to Team Hub</button>
+            <button id="goto-hub-btn" class="btn primary">Continue</button>
             <button id="restart-btn" class="btn ghost">Start over</button>
           </div>
+        </div>
+      </section>
+    </section>
+
+    <!-- ======================= PHASE 1.5: TRIVIA PROLOGUE ======================= -->
+    <section id="phase-trivia" class="phase hidden">
+      <section class="trivia-panel">
+        <h2>Season Prologue</h2>
+        <div id="trivia-intro">
+          <p class="trivia-intro-text">Answer one NBA trivia question right and bank a permanent team-strength boost for the season — the harder the question you pick, the bigger the reward. Miss it and there's no penalty, just no bonus.</p>
+          <div id="trivia-tier-options" class="trivia-tier-options"></div>
+          <button id="trivia-skip-btn" class="trivia-skip-btn">Skip trivia, head to the Team Hub</button>
+        </div>
+        <div id="trivia-question" class="hidden">
+          <div id="trivia-question-tier" class="trivia-question-tier"></div>
+          <p id="trivia-question-text" class="trivia-question-text"></p>
+          <div id="trivia-answers" class="trivia-answers"></div>
+        </div>
+        <div id="trivia-result" class="hidden">
+          <div id="trivia-result-headline" class="trivia-result-headline"></div>
+          <p id="trivia-result-sub" class="trivia-result-sub"></p>
+          <button id="trivia-continue-btn" class="btn primary">Continue to Team Hub</button>
         </div>
       </section>
     </section>
@@ -223,6 +249,7 @@
             <div class="team-rating-label">Team Strength (SRS) &middot; reflects your Game Plan</div>
             <div id="team-strength-val" class="team-rating-val">--</div>
           </div>
+          <div id="hub-trivia-badge" class="hub-trivia-badge hidden"></div>
           <button id="start-season-btn" class="btn primary full">Start Season</button>
         </section>
       </div>
@@ -385,6 +412,7 @@
   <script src="js/league.js"></script>
   <script src="js/franchise.js"></script>
   <script src="js/draft.js"></script>
+  <script src="js/trivia.js"></script>
   <script src="js/hub.js"></script>
   <script src="js/season.js"></script>
   <script src="js/playoffs.js"></script>

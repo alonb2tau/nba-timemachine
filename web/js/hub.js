@@ -6,7 +6,7 @@
  * game — so this screen shows the coach read-only.
  */
 
-let HUB = null; // { starters, bench, budget, coach, tactics, subMode, subSelection }
+let HUB = null; // { starters, bench, budget, coach, tactics, subMode, subSelection, triviaBonus, triviaTier }
 
 function initHub(draftedSquad) {
   HUB = {
@@ -17,6 +17,7 @@ function initHub(draftedSquad) {
     tactics: { pace: "balanced", shots: "balanced", scheme: "solid", offense: "balanced", boards: "balanced", rotation: "balanced" },
     subMode: false,
     subSelection: null, // { list: "starters"|"bench", idx }
+    triviaBonus: 0, triviaTier: null, // set by trivia.js right after the draft
   };
   wireHubEvents();
   renderHub();
@@ -122,7 +123,11 @@ function renderHub() {
   const chem = chemistryBonus(HUB.starters, HUB.bench, HUB.coach);
   const acc = accoladesBonus(HUB.starters, HUB.bench, HUB.coach, HUB.tactics.rotation);
   $("team-rating-val").textContent = Math.round(avgOvr);
-  $("team-strength-val").textContent = signedNum(teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach));
+  $("team-strength-val").textContent = signedNum(teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach, HUB.triviaBonus));
+  $("hub-trivia-badge").classList.toggle("hidden", !HUB.triviaBonus);
+  if (HUB.triviaBonus) {
+    $("hub-trivia-badge").textContent = `🏀 ${TRIVIA_TIERS[HUB.triviaTier].label} bonus: +${HUB.triviaBonus.toFixed(1)} SRS banked`;
+  }
   $("chem-bonus-val").textContent = `+${chem.bonus.toFixed(1)} SRS`;
   $("hub-chemistry-links").innerHTML = chem.links.length
     ? chem.links.map(l => `<div class="chem-link">

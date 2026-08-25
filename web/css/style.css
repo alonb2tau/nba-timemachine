@@ -795,13 +795,59 @@ h3.hub-subhead {
   .bx-scroll-hint { display: none; }
 }
 
+/* -------------------------------------------------------------- trivia */
+.trivia-panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 26px 28px; max-width: 620px; margin: 0 auto; text-align: center; }
+.trivia-intro-text { color: var(--ink-soft); font-size: 14px; line-height: 1.55; margin: -4px 0 22px; }
+.trivia-tier-options { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.trivia-tier-card {
+  background: var(--panel); border: 1.5px solid var(--line-strong); border-radius: var(--radius);
+  padding: 14px 18px; text-align: left; cursor: pointer; font: inherit; color: var(--ink);
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+  transition: border-color 0.12s, background 0.12s, transform 0.16s var(--ease-prestige), box-shadow 0.16s var(--ease-prestige);
+}
+.trivia-tier-card:hover { border-color: var(--gold); box-shadow: 0 6px 18px rgba(201,162,39,0.18); transform: translateY(-2px); }
+.trivia-tier-card:active { transform: translateY(0) scale(0.98); transition-duration: 0.08s; }
+.trivia-tier-name { font-family: "Oswald", sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; }
+.trivia-tier-blurb { font-size: 12px; color: var(--ink-faint); flex: 1; min-width: 160px; }
+.trivia-tier-reward { font-family: "Oswald", sans-serif; font-size: 12px; font-weight: 700; color: var(--gold-dark); white-space: nowrap; }
+.trivia-skip-btn {
+  background: none; border: none; color: var(--ink-faint); font-size: 12px; text-decoration: underline;
+  cursor: pointer; padding: 4px;
+}
+.trivia-skip-btn:hover { color: var(--ink-soft); }
+
+.trivia-question-tier { font-family: "Oswald", sans-serif; font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--gold-dark); font-weight: 700; margin-bottom: 10px; }
+.trivia-question-text { font-family: "Oswald", sans-serif; font-size: 18px; font-weight: 600; color: var(--ink); margin: 0 0 20px; }
+.trivia-answers { display: flex; flex-direction: column; gap: 8px; }
+.trivia-answer-btn {
+  background: var(--panel); border: 1.5px solid var(--line-strong); color: var(--ink);
+  padding: 12px 16px; border-radius: var(--radius); font-size: 14px; font-weight: 500; text-align: left; cursor: pointer;
+  transition: border-color 0.12s, background 0.12s, color 0.12s, transform 0.16s var(--ease-prestige);
+}
+.trivia-answer-btn:hover:not(:disabled) { border-color: var(--red); color: var(--red); transform: translateY(-2px) translateX(2px); }
+.trivia-answer-btn:disabled { cursor: default; }
+.trivia-answer-btn.correct { border-color: var(--good); background: var(--good-tint); color: var(--good); font-weight: 700; }
+.trivia-answer-btn.wrong { border-color: var(--bad); background: var(--red-tint); color: var(--bad); }
+
+.trivia-result-headline { font-family: "Oswald", sans-serif; font-size: 22px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; }
+.trivia-result-headline.made { color: var(--good); }
+.trivia-result-headline.missed { color: var(--ink-faint); }
+.trivia-result-headline.skipped { color: var(--ink-faint); }
+.trivia-result-sub { color: var(--ink-soft); margin: 8px 0 20px; font-size: 13.5px; }
+
+.hub-trivia-badge {
+  text-align: center; font-size: 12.5px; font-weight: 600; color: var(--gold-dark);
+  background: var(--gold-tint); border: 1px solid var(--gold-tint-border); border-radius: var(--radius);
+  padding: 8px 12px; margin-top: 10px;
+}
+
 /* ---------------------------------------------------- reduced motion --- */
 /* every hover/press lift added above is purely decorative — never load-
    bearing for understanding state — so it's safe to strip entirely here */
 @media (prefers-reduced-motion: reduce) {
   .btn, .mode-card, .franchise-card, .clutch-card, .tactic-options button,
   .halftime-options button, .pregame-choices button, .player-row, .coach-row,
-  .hub-slot.selectable, .slot, .hub-slot, .theme-toggle-btn {
+  .hub-slot.selectable, .slot, .hub-slot, .theme-toggle-btn, .trivia-tier-card, .trivia-answer-btn {
     transition: none !important;
   }
   .btn:hover, .btn:active, .mode-card:hover, .mode-card:active,
@@ -810,7 +856,8 @@ h3.hub-subhead {
   .halftime-options button:hover, .halftime-options button:active,
   .pregame-choices button:hover, .pregame-choices button:active,
   .player-row:hover, .player-row:active, .coach-row:hover, .coach-row:active,
-  .hub-slot.selectable:hover, .hub-slot.selectable:active, .theme-toggle-btn:hover, .theme-toggle-btn:active {
+  .hub-slot.selectable:hover, .hub-slot.selectable:active, .theme-toggle-btn:hover, .theme-toggle-btn:active,
+  .trivia-tier-card:hover, .trivia-tier-card:active, .trivia-answer-btn:hover, .trivia-answer-btn:active {
     transform: none !important;
   }
 }

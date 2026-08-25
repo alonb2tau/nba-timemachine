@@ -21,30 +21,37 @@ const TACTIC_DEFS = {
     balanced: { totalMult: 1.00, label: "Balanced" },
     fast:     { totalMult: 1.09, label: "Push the pace" },
   },
+  // Every tactic below carries a flat srsDelta rather than a multiplier on
+  // top of team SRS — with a properly-calibrated baseline (see
+  // ratingToSRS) that baseline sits close to zero for a middling roster,
+  // and a *multiplier* on a number near zero barely moves it at all. A
+  // flat delta stays meaningful regardless of how strong or weak the
+  // roster underneath it is, so tactical choices matter for every team,
+  // not just already-elite ones.
   shots: {
-    paint:    { ratingMult: 1.00, varianceMult: 0.90, label: "Attack the paint" },
-    balanced: { ratingMult: 1.00, varianceMult: 1.00, label: "Balanced" },
-    three:    { ratingMult: 0.98, varianceMult: 1.20, label: "Fire from three" },
+    paint:    { srsDelta: 0.6,  varianceMult: 0.90, label: "Attack the paint" },
+    balanced: { srsDelta: 0.0,  varianceMult: 1.00, label: "Balanced" },
+    three:    { srsDelta: -0.3, varianceMult: 1.25, label: "Fire from three" },
   },
   scheme: {
-    man:      { defMult: 1.05, label: "Lockdown man" },
-    solid:    { defMult: 1.00, label: "Solid" },
-    switch:   { defMult: 0.97, label: "Switch everything" },
+    man:      { srsDelta: 1.1,  label: "Lockdown man" },
+    solid:    { srsDelta: 0.0,  label: "Solid" },
+    switch:   { srsDelta: -0.8, label: "Switch everything" },
   },
   // ball movement: a motion offense is a little more efficient (the shot
   // it generates is a better one) at the cost of leaning on system over
   // star shot-creation; isolation-heavy leans the other way.
   offense: {
-    iso:      { ratingMult: 1.015, label: "Isolation-heavy" },
-    balanced: { ratingMult: 1.000, label: "Balanced" },
-    motion:   { ratingMult: 1.010, label: "Motion offense" },
+    iso:      { srsDelta: 0.2, label: "Isolation-heavy" },
+    balanced: { srsDelta: 0.0, label: "Balanced" },
+    motion:   { srsDelta: 0.4, label: "Motion offense" },
   },
   // rebounding emphasis: crashing the boards trades a bit of transition
   // defense (opponent gets easier looks the other way) for second chances.
   boards: {
-    crash:    { defMult: 0.985, ratingMult: 1.015, label: "Crash the glass" },
-    balanced: { defMult: 1.000, ratingMult: 1.000, label: "Balanced" },
-    getback:  { defMult: 1.015, ratingMult: 0.99,  label: "Get back on defense" },
+    crash:    { srsDelta: 0.3,  label: "Crash the glass" },
+    balanced: { srsDelta: 0.0,  label: "Balanced" },
+    getback:  { srsDelta: -0.2, label: "Get back on defense" },
   },
   // bench usage: how much of the team's identity is the starting five vs.
   // the bench, this game — the same split squadRating()/squadStatLine()
@@ -95,9 +102,19 @@ function squadStatLine(starters, bench, rotationKey) {
   };
 }
 
-/** Convert our 20-99 OVR scale to the same SRS scale real teams are rated on. */
+/**
+ * Convert our 20-99 OVR scale to the same SRS scale real teams are rated
+ * on. The pivot (67) is calibrated to a Medium-difficulty (€100M) roster's
+ * typical average OVR, measured directly — not guessed — so a middling
+ * roster on the standard difficulty lands at roughly a real opponent's
+ * average SRS (the actual league's real-team SRS averages ~0 by
+ * definition). That's deliberate: at this pivot, whether you're actually
+ * favored or an underdog is decided by the things you control on top of
+ * raw roster spend — chemistry, accolades, coach, tactics, trivia — not
+ * baked in by the difficulty pick alone.
+ */
 function ratingToSRS(avgOvr) {
-  return (avgOvr - 58) * 0.5;
+  return (avgOvr - 67) * 0.5;
 }
 
 /**
@@ -119,19 +136,17 @@ const COACHES = [
   { id: "c10", name: "Gregory Vann",    style: "Hall of Fame bench boss",   price: 10, srsBonus: 3.0 },
 ];
 
-function teamStrength(starters, bench, tactics, coach) {
+function teamStrength(starters, bench, tactics, coach, bonusSrs) {
   const avgOvr = squadRating(starters, bench, tactics.rotation);
   let srs = ratingToSRS(avgOvr);
-  srs *= TACTIC_DEFS.shots[tactics.shots].ratingMult;
-  srs *= TACTIC_DEFS.scheme[tactics.scheme].defMult;
-  if (tactics.offense) srs *= TACTIC_DEFS.offense[tactics.offense].ratingMult;
-  if (tactics.boards) {
-    srs *= TACTIC_DEFS.boards[tactics.boards].ratingMult;
-    srs *= TACTIC_DEFS.boards[tactics.boards].defMult;
-  }
+  srs += TACTIC_DEFS.shots[tactics.shots].srsDelta;
+  srs += TACTIC_DEFS.scheme[tactics.scheme].srsDelta;
+  if (tactics.offense) srs += TACTIC_DEFS.offense[tactics.offense].srsDelta;
+  if (tactics.boards) srs += TACTIC_DEFS.boards[tactics.boards].srsDelta;
   if (coach) srs += coach.srsBonus;
   if (typeof chemistryBonus === "function") srs += chemistryBonus(starters, bench, coach).bonus;
   if (typeof accoladesBonus === "function") srs += accoladesBonus(starters, bench, coach, tactics.rotation).bonus;
+  if (bonusSrs) srs += bonusSrs; // the trivia round's reward, if any
   return srs;
 }
 
@@ -193,8 +208,8 @@ function genBoxScore(starters, bench, teamScore, won) {
  * apply a halftime bias to the back half — the caller drives it quarter by
  * quarter so the UI can reveal it progressively.
  */
-function newGameEngine(starters, bench, tactics, opponent, isHome, coach) {
-  const youSRS = teamStrength(starters, bench, tactics, coach);
+function newGameEngine(starters, bench, tactics, opponent, isHome, coach, bonusSrs) {
+  const youSRS = teamStrength(starters, bench, tactics, coach, bonusSrs);
   const oppSRS = opponent.srs;
   const homeAdv = isHome ? 2.2 : -2.2;
   let pregameBias = 0, halftimeBias = 0;

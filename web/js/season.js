@@ -33,7 +33,7 @@ function startSeason() {
 function simulateGamesBulk(count) {
   for (let i = 0; i < count && SEASON.gameIndex < SEASON.schedule.length; i++) {
     const opp = SEASON.schedule[SEASON.gameIndex];
-    const eng = newGameEngine(HUB.starters, HUB.bench, HUB.tactics, opp, SEASON.gameIndex % 2 === 0, HUB.coach);
+    const eng = newGameEngine(HUB.starters, HUB.bench, HUB.tactics, opp, SEASON.gameIndex % 2 === 0, HUB.coach, HUB.triviaBonus);
     let totals = eng.playInstant();
     while (totals.you === totals.opp) totals = eng.playOvertime(); // basketball has no ties — sim one more mini-period until it breaks
     const won = totals.you > totals.opp;
@@ -166,7 +166,7 @@ function standingsRowHtml(r, rank) {
 }
 
 function renderStandings() {
-  const you = { conf: SEASON.yourConf, wins: SEASON.wins, losses: SEASON.losses, srs: teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach) };
+  const you = { conf: SEASON.yourConf, wins: SEASON.wins, losses: SEASON.losses, srs: teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach, HUB.triviaBonus) };
   const east = conferenceStandings(SEASON.aiLeague, "East", SEASON.gameIndex, you);
   const west = conferenceStandings(SEASON.aiLeague, "West", SEASON.gameIndex, you);
   $("standings-east").innerHTML = east.map((r, i) => standingsRowHtml(r, i + 1)).join("");

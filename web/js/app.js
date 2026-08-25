@@ -40,7 +40,7 @@ function refreshTopbar() {
 }
 
 function seasonSeed() {
-  const you = { conf: SEASON.yourConf, wins: SEASON.wins, losses: SEASON.losses, srs: teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach) };
+  const you = { conf: SEASON.yourConf, wins: SEASON.wins, losses: SEASON.losses, srs: teamStrength(HUB.starters, HUB.bench, HUB.tactics, HUB.coach, HUB.triviaBonus) };
   const standings = conferenceStandings(SEASON.aiLeague, SEASON.yourConf, SEASON_LENGTH, you);
   return standings.findIndex(r => r.isYou) + 1;
 }
@@ -175,7 +175,8 @@ function wireAppEvents() {
     wireSeasonEvents();
     wirePlayoffsEvents();
     sendStatEvent("draft_completed", { franchise_code: FRANCHISE.code, franchise_name: FRANCHISE.name });
-    switchPhase("hub");
+    initTrivia();
+    switchPhase("trivia");
   });
   $("start-season-btn").addEventListener("click", () => {
     const btn = $("start-season-btn");
