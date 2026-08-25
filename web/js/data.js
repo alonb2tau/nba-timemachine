@@ -32,8 +32,19 @@ async function fetchSeasonList() {
 // real player price out around €14.5M — half the league too expensive to
 // field a full roster on any budget. Anchored to the real observed floor
 // instead, so a genuinely bottom-of-the-roster player prices near €1M.
+//
+// RATING_MIN is deliberately the worst-rated *center* (41), not the
+// worst-rated player overall (a guard, 38) — the draft's budget reserve
+// (maxAffordable() in draft.js) assumes every remaining slot, whichever
+// position it needs, can always be filled for the game's €1M price floor.
+// Anchoring to guards left centers' true cheapest real option at €1.5M,
+// so anyone who spent down to exactly "€1M x remaining slots" with a
+// center still open hit a genuine, unrecoverable lockout — not bad luck,
+// every center in all 16 seasons was too expensive. Anchoring to the
+// highest per-position floor guarantees at least one real player at every
+// position actually prices at the true €1M minimum.
 const PRICE_MIN = 1, PRICE_MAX = 26;
-const RATING_MIN = 38, RATING_MAX = 99;
+const RATING_MIN = 41, RATING_MAX = 99;
 function priceFromRating(rating) {
   const t = Math.max(0, Math.min(1, (rating - RATING_MIN) / (RATING_MAX - RATING_MIN)));
   const price = PRICE_MIN + (PRICE_MAX - PRICE_MIN) * Math.pow(t, 1.4);
