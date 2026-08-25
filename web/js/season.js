@@ -100,9 +100,15 @@ function enterCheckpointHub() {
 // ------------------------------------------------------------------ trades --
 
 function makeTradeOffer() {
-  const benchWithPlayers = HUB.bench.map((s, i) => ({ s, i })).filter(x => x.s.player);
-  if (!benchWithPlayers.length) return null;
-  const target = rand(benchWithPlayers);
+  // trade partners consider your whole roster, starters included — not just
+  // bench filler nobody would notice. The price window skews toward a
+  // lateral-or-better swap (a real "would you actually do this?" offer)
+  // rather than symmetric noise, so starters get real, recognizable names.
+  const starters = HUB.starters.map((s, i) => ({ s, i, list: "starters" })).filter(x => x.s.player);
+  const bench = HUB.bench.map((s, i) => ({ s, i, list: "bench" })).filter(x => x.s.player);
+  const eligible = starters.concat(bench);
+  if (!eligible.length) return null;
+  const target = rand(eligible);
   const bucket = target.s.pos;
 
   for (let tries = 0; tries < 60; tries++) {
@@ -112,28 +118,34 @@ function makeTradeOffer() {
     const pool = season.teams[code].players.filter(p => posBucket(p.pos) === bucket);
     if (!pool.length) continue;
     const candidate = rand(pool);
-    if (Math.abs(candidate.price - target.s.player.price) > 4) continue;
-    return { outSlotIdx: target.i, outgoing: target.s.player, incoming: candidate, fromTeam: season.teams[code].name, fromYear: season.label };
+    if (candidate.price < target.s.player.price - 2 || candidate.price > target.s.player.price + 10) continue;
+    return {
+      outSlotIdx: target.i, outList: target.list, wasStarter: target.list === "starters",
+      outgoing: target.s.player, incoming: candidate, fromTeam: season.teams[code].name, fromYear: season.label,
+    };
   }
   return null;
 }
 
 function showTradeOffer(offer) {
   SEASON.pendingTrade = offer;
+  const upgrade = offer.incoming.price > offer.outgoing.price;
   $("trade-incoming").innerHTML = `
     <div class="trade-player-head">${faceHtml(offer.incoming.name, offer.incoming.code, null, 40)}<div class="name">${esc(offer.incoming.name)}</div></div>
     <div class="line">${offer.incoming.pos} &middot; ${offer.incoming.pts} pts &middot; OVR ${offer.incoming.rating} &middot; €${offer.incoming.price}M</div>
-    <div class="line">${esc(offer.fromTeam)} &middot; ${offer.fromYear}</div>`;
+    <div class="line">${esc(offer.fromTeam)} &middot; ${offer.fromYear}</div>
+    ${upgrade ? `<div class="trade-upgrade-tag">Upgrade</div>` : ""}`;
   $("trade-outgoing").innerHTML = `
     <div class="trade-player-head">${faceHtml(offer.outgoing.name, offer.outgoing.code, null, 40)}<div class="name">${esc(offer.outgoing.name)}</div></div>
-    <div class="line">${offer.outgoing.pos} &middot; ${offer.outgoing.pts} pts &middot; OVR ${offer.outgoing.rating}</div>`;
+    <div class="line">${offer.outgoing.pos} &middot; ${offer.outgoing.pts} pts &middot; OVR ${offer.outgoing.rating}</div>
+    ${offer.wasStarter ? `<div class="trade-starter-tag">Starter</div>` : ""}`;
   $("trade-modal").classList.remove("hidden");
 }
 
 function resolveTrade(accept) {
   const offer = SEASON.pendingTrade;
   if (accept && offer) {
-    HUB.bench[offer.outSlotIdx].player = offer.incoming;
+    HUB[offer.outList][offer.outSlotIdx].player = offer.incoming;
     toast(`Trade made: ${offer.incoming.name} in, ${offer.outgoing.name} out.`);
   }
   SEASON.pendingTrade = null;

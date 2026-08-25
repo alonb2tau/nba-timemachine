@@ -158,7 +158,7 @@ function beginUserGame(action, bias) {
   const engine = newGameEngine(HUB.starters, HUB.bench, HUB.tactics, { srs: opp.srs }, true, HUB.coach, HUB.triviaBonus);
   engine.applyPregameBias(bias);
   PO_LIVE = {
-    a, b, you, opp, engine, halfStep: 0, halftimeChosen: false,
+    a, b, you, opp, engine, label, target, isSeries, halfStep: 0, halftimeChosen: false,
     awaitingClutch: false, showingClutchResult: false, clutchResolved: false, clutchResult: null, finished: null,
     onDone: (winner) => {
       if (isSeries) {
@@ -308,8 +308,12 @@ function renderHero() {
   $("hero-team-a").innerHTML = heroTeamHtml(action.a);
   $("hero-team-b").innerHTML = heroTeamHtml(action.b);
   $("hero-context").textContent = seriesStakesText(action);
-  $("pregame-choices").innerHTML = PREGAME_CHOICES.map(c =>
-    `<button data-bias="${c.bias}">${c.label}</button>`).join("");
+  $("pregame-choices").innerHTML = PREGAME_CHOICES.map(c => `
+    <button class="strategy-card" data-bias="${c.bias}">
+      <span class="strategy-icon">${c.icon}</span>
+      <span class="strategy-title">${esc(c.title)}</span>
+      <span class="strategy-sub">${esc(c.sub)}</span>
+    </button>`).join("");
   $("pregame-choices").querySelectorAll("button").forEach(btn =>
     btn.addEventListener("click", () => lockInChoice("pregame-choices", btn, () => beginUserGame(action, Number(btn.dataset.bias)))));
 }
@@ -398,8 +402,77 @@ function renderBracket() {
     </div>`;
 }
 
+function findYourSeed() {
+  for (const cb of [PLAYOFFS.east, PLAYOFFS.west]) {
+    const all = cb.seeds1to6.concat([cb.playIn.g1.a, cb.playIn.g1.b, cb.playIn.g2.a, cb.playIn.g2.b].filter(Boolean));
+    const mine = all.find(t => t.isYou);
+    if (mine) return mine.seed;
+  }
+  return null;
+}
+
+/** Always-visible summary of your own playoff run — round, series score,
+ * and a few relevant numbers — so checking "where do I stand" doesn't mean
+ * parsing the entire bracket every time. */
+function renderSeriesStatus() {
+  const el = $("series-status");
+  let label, opp, isSeries, gamesFor, gamesAgainst, extra = "";
+
+  if (PO_LIVE) {
+    label = PO_LIVE.label;
+    opp = PO_LIVE.opp;
+    isSeries = PO_LIVE.isSeries;
+    if (isSeries) {
+      gamesFor = PO_LIVE.a.isYou ? PO_LIVE.target.gamesA : PO_LIVE.target.gamesB;
+      gamesAgainst = PO_LIVE.a.isYou ? PO_LIVE.target.gamesB : PO_LIVE.target.gamesA;
+    }
+  } else {
+    const action = findUserAction();
+    if (action) {
+      label = action.label;
+      opp = action.a.isYou ? action.b : action.a;
+      isSeries = action.isSeries;
+      if (isSeries) {
+        gamesFor = action.a.isYou ? action.target.gamesA : action.target.gamesB;
+        gamesAgainst = action.a.isYou ? action.target.gamesB : action.target.gamesA;
+      }
+    } else if (PLAYOFFS.seriesLog.length) {
+      const last = PLAYOFFS.seriesLog[PLAYOFFS.seriesLog.length - 1];
+      label = last.round; opp = { name: last.opponent };
+      isSeries = last.isSeries;
+      gamesFor = last.gamesFor; gamesAgainst = last.gamesAgainst;
+      extra = last.won ? "Series won — advancing." : "Eliminated.";
+    } else if (PLAYOFFS.userMissedPlayoffs) {
+      label = "Missed the Play-In";
+    }
+  }
+
+  if (!label) { el.classList.add("hidden"); return; }
+  el.classList.remove("hidden");
+
+  $("series-status-round").textContent = label;
+  $("series-status-opp").textContent = opp ? `vs ${opp.name}` : "";
+  $("series-status-score").classList.toggle("hidden", !isSeries);
+  if (isSeries) {
+    $("series-you-wins").textContent = gamesFor;
+    $("series-opp-wins").textContent = gamesAgainst;
+  }
+
+  const record = PLAYOFFS.seriesLog.reduce((acc, s) => {
+    if (s.isSeries) { acc.w += s.gamesFor; acc.l += s.gamesAgainst; }
+    return acc;
+  }, { w: 0, l: 0 });
+  $("series-stat-record").textContent = `${record.w}-${record.l}`;
+  const seed = findYourSeed();
+  $("series-stat-seed").textContent = seed ? `#${seed}` : "—";
+  $("series-stat-regszn").textContent = SEASON ? `${SEASON.wins}-${SEASON.losses}` : "—";
+  $("series-status-extra").textContent = extra;
+  $("series-status-extra").classList.toggle("hidden", !extra);
+}
+
 function renderPlayoffs() {
   renderHero();
+  renderSeriesStatus();
   renderBracket();
 }
 
@@ -417,8 +490,12 @@ function renderPoLive() {
   const waitingOnHalftime = live.halfStep === 1 && !live.halftimeChosen;
   $("po-halftime-panel").classList.toggle("hidden", !waitingOnHalftime);
   if (waitingOnHalftime) {
-    $("po-halftime-options").innerHTML = HALFTIME_CHOICES.map(c =>
-      `<button data-bias="${c.bias}">${c.label}</button>`).join("");
+    $("po-halftime-options").innerHTML = HALFTIME_CHOICES.map(c => `
+      <button class="strategy-card" data-bias="${c.bias}">
+        <span class="strategy-icon">${c.icon}</span>
+        <span class="strategy-title">${esc(c.title)}</span>
+        <span class="strategy-sub">${esc(c.sub)}</span>
+      </button>`).join("");
     $("po-halftime-options").querySelectorAll("button").forEach(btn =>
       btn.addEventListener("click", () => lockInChoice("po-halftime-options", btn, () => choosePoHalftime(Number(btn.dataset.bias)))));
   }

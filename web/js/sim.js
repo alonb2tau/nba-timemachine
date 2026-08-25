@@ -261,15 +261,15 @@ function newGameEngine(starters, bench, tactics, opponent, isHome, coach, bonusS
 }
 
 const HALFTIME_CHOICES = [
-  { key: "push",   label: "Ride the hot hand — keep attacking",  bias: 2.4 },
-  { key: "lock",   label: "Tighten up on defense",                bias: 1.6 },
-  { key: "steady", label: "Stay the course",                      bias: 0.0 },
+  { key: "push",   icon: "\u{1F525}", title: "Ride The Hot Hand", sub: "Keep attacking.",       bias: 2.4 },
+  { key: "lock",   icon: "\u{1F512}", title: "Tighten Up",        sub: "Lock in on defense.",   bias: 1.6 },
+  { key: "steady", icon: "\u{1F9ED}", title: "Stay The Course",   sub: "No adjustments.",        bias: 0.0 },
 ];
 
 const PREGAME_CHOICES = [
-  { key: "aggressive", label: "Come out aggressive — set the tone early", bias: 2.2 },
-  { key: "cautious",   label: "Feel them out, protect against a hot start", bias: 1.2 },
-  { key: "balanced",   label: "Trust the game plan — stay balanced",       bias: 0.0 },
+  { key: "aggressive", icon: "\u{26A1}", title: "Come Out Aggressive", sub: "Set the tone early.",            bias: 2.2 },
+  { key: "cautious",   icon: "\u{1F6E1}\u{FE0F}", title: "Feel Them Out", sub: "Protect against a hot start.", bias: 1.2 },
+  { key: "balanced",   icon: "\u{2696}\u{FE0F}", title: "Trust The Plan", sub: "Stay balanced.",               bias: 0.0 },
 ];
 
 /*

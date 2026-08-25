@@ -385,21 +385,41 @@ h3.hub-subhead {
 .quarter-log { display: flex; gap: 10px; margin: 12px 0; font-size: 12px; color: var(--ink-soft); flex-wrap: wrap; }
 .quarter-log .qrow { padding: 4px 10px; border-radius: var(--radius-xs); background: var(--bg); border: 1px solid var(--line); }
 
-.halftime-panel { margin: 14px 0; padding: 14px; background: var(--red-tint); border-radius: var(--radius); border: 1px solid var(--red-tint-border); }
-.halftime-title { font-family: "Oswald", sans-serif; font-size: 13px; font-weight: 700; color: var(--red); margin-bottom: 10px; text-transform: uppercase; }
-.halftime-options { display: flex; flex-direction: column; gap: 6px; }
-.halftime-options button {
-  text-align: left; background: var(--panel); border: 1.5px solid var(--line-strong);
-  color: var(--ink); padding: 9px 12px; border-radius: var(--radius-sm); font-size: 13px; cursor: pointer; font-weight: 500;
-  transition: border-color 0.12s, color 0.12s, background 0.12s,
-              transform 0.16s var(--ease-prestige), box-shadow 0.16s var(--ease-prestige);
+.halftime-panel {
+  margin: 14px 0; padding: 18px;
+  background: linear-gradient(165deg, var(--black) 0%, #2a1015 100%);
+  border-radius: var(--radius-lg); border: 1px solid var(--red-dark);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.25);
 }
-.halftime-options button:hover:not(:disabled) { border-color: var(--red); color: var(--red); box-shadow: 0 4px 12px rgba(208,16,42,0.14); transform: translateY(-2px) translateX(2px); }
-.halftime-options button:active:not(:disabled) { transform: translateY(0) translateX(0) scale(0.98); transition-duration: 0.08s; }
-.halftime-options button.chosen, .pregame-choices button.chosen {
-  border-color: var(--red); background: var(--red); color: #fff; box-shadow: none; transform: none;
+.halftime-title { font-family: "Oswald", sans-serif; font-size: 13px; font-weight: 700; color: #ff8a95; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.05em; text-align: center; }
+.halftime-options { display: flex; gap: 10px; flex-wrap: wrap; }
+
+/* shared "strategic decision" card language for pregame + halftime choices —
+   these used to be plain text-only list rows, easy to mistake for a settings
+   form; giving them the same icon/title/sub card shape the mode-select and
+   franchise screens already use ties the whole decision language together. */
+.strategy-card {
+  display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
+  background: var(--panel); border: 1.5px solid var(--line-strong); border-radius: var(--radius-lg);
+  padding: 18px 14px; cursor: pointer; font: inherit; flex: 1; min-width: 0;
+  transition: border-color 0.12s, background 0.12s, color 0.12s,
+              transform 0.18s var(--ease-prestige), box-shadow 0.18s var(--ease-prestige);
 }
-.halftime-options button:disabled, .pregame-choices button:disabled { opacity: 0.55; cursor: default; }
+.strategy-icon { font-size: 26px; line-height: 1; margin-bottom: 4px; }
+.strategy-title { font-family: "Oswald", sans-serif; font-size: 13.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.02em; color: var(--ink); }
+.strategy-sub { font-size: 12px; color: var(--ink-faint); line-height: 1.4; }
+.strategy-card:hover:not(:disabled) { border-color: var(--red); box-shadow: 0 10px 26px rgba(208,16,42,0.2); transform: translateY(-4px); }
+.strategy-card:active:not(:disabled) { transform: translateY(-1px) scale(0.98); transition-duration: 0.08s; }
+.strategy-card.chosen {
+  border-color: var(--red); background: var(--red); box-shadow: none; transform: none;
+}
+.strategy-card.chosen .strategy-title, .strategy-card.chosen .strategy-sub { color: #fff; }
+.strategy-card:disabled { opacity: 0.55; cursor: default; }
+.halftime-panel .strategy-card { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.14); }
+.halftime-panel .strategy-title { color: #fff; }
+.halftime-panel .strategy-sub { color: #c7c9cf; }
+.halftime-panel .strategy-card:hover:not(:disabled) { border-color: #ff8a95; box-shadow: 0 10px 26px rgba(255,77,94,0.25); }
+.halftime-panel .strategy-card.chosen { background: var(--red); border-color: var(--red); }
 
 .box-score { margin-top: 16px; }
 .box-score table { width: 100%; border-collapse: collapse; font-size: 12px; }
@@ -411,7 +431,38 @@ h3.hub-subhead {
 
 /* ---------------------------------------------------------- playoffs */
 .bracket-title { text-align: center; font-family: "Oswald", sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink); border: none; padding: 0; }
-.bracket { display: flex; flex-direction: column; gap: 10px; align-items: center; min-width: 0; width: 100%; }
+/* --------------------------------------------------------- series status */
+.series-status {
+  background: linear-gradient(165deg, var(--black) 0%, #1a1015 100%);
+  border-radius: var(--radius-lg); border: 1px solid var(--line-strong);
+  padding: 22px 26px; margin: 18px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+.series-status-main { display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: wrap; text-align: center; }
+.series-status-round { font-family: "Oswald", sans-serif; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-bright); flex-basis: 100%; }
+.series-status-score { font-family: "Oswald", sans-serif; font-size: 56px; font-weight: 700; color: #fff; line-height: 1; display: flex; align-items: baseline; gap: 12px; }
+.series-status-dash { font-size: 32px; color: #6a6d75; }
+.series-status-opp { font-size: 15px; color: #c7c9cf; font-weight: 600; }
+.series-status-stats { display: flex; justify-content: center; gap: 32px; margin-top: 18px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1); flex-wrap: wrap; }
+.series-stat { text-align: center; }
+.series-stat-val { display: block; font-family: "Oswald", sans-serif; font-size: 20px; font-weight: 700; color: #fff; font-variant-numeric: tabular-nums; }
+.series-stat-label { font-size: 10.5px; color: #9a9ea6; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 2px; }
+.series-status-extra { text-align: center; margin-top: 14px; font-size: 13px; color: var(--gold-bright); font-weight: 600; }
+
+/* full bracket — reference material now, tucked behind a disclosure so the
+   series-status summary above is what you see by default */
+.bracket-details { margin: 18px 0; }
+.bracket-summary {
+  cursor: pointer; list-style: none; font-family: "Oswald", sans-serif; font-size: 12px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint);
+  padding: 10px 0; text-align: center; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line);
+  transition: color 0.12s;
+}
+.bracket-summary:hover { color: var(--red); }
+.bracket-summary::-webkit-details-marker { display: none; }
+.bracket-summary::before { content: "\25B8  "; }
+.bracket-details[open] .bracket-summary::before { content: "\25BE  "; }
+.bracket-details[open] .bracket-summary { border-bottom: none; }
+.bracket { display: flex; flex-direction: column; gap: 10px; align-items: center; min-width: 0; width: 100%; padding-top: 14px; }
 .bracket-round { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 .bracket-game {
   background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius);
@@ -446,6 +497,12 @@ h3.hub-subhead {
 .trade-player { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px; }
 .trade-player .name { font-weight: 700; font-size: 14px; }
 .trade-player .line { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+.trade-upgrade-tag, .trade-starter-tag {
+  display: inline-block; margin-top: 8px; font-family: "Oswald", sans-serif; font-size: 10px;
+  font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 8px; border-radius: var(--radius-xs);
+}
+.trade-upgrade-tag { color: var(--good); background: var(--good-tint); }
+.trade-starter-tag { color: var(--red); background: var(--red-tint); }
 .trade-arrow { font-size: 20px; color: var(--ink-faint); }
 .trade-actions { display: flex; gap: 10px; justify-content: center; margin-top: 4px; }
 
@@ -581,15 +638,7 @@ h3.hub-subhead {
 .hero-vs { font-family: "Oswald", sans-serif; font-size: 13px; color: var(--ink-faint); font-weight: 700; }
 .hero-context { font-size: 14px; color: var(--ink-soft); margin-bottom: 20px; }
 .hero-pregame-label { font-family: "Oswald", sans-serif; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-faint); margin-bottom: 10px; }
-.pregame-choices { display: flex; flex-direction: column; gap: 8px; max-width: 460px; margin: 0 auto; }
-.pregame-choices button {
-  background: var(--panel); border: 1.5px solid var(--line-strong); color: var(--ink);
-  padding: 12px 16px; border-radius: var(--radius); font-size: 14px; cursor: pointer; font-weight: 500;
-  transition: border-color 0.12s, color 0.12s, background 0.12s,
-              transform 0.16s var(--ease-prestige), box-shadow 0.16s var(--ease-prestige);
-}
-.pregame-choices button:hover:not(:disabled) { border-color: var(--red); color: var(--red); box-shadow: 0 4px 12px rgba(208,16,42,0.14); transform: translateY(-2px) translateX(2px); }
-.pregame-choices button:active:not(:disabled) { transform: translateY(0) translateX(0) scale(0.98); transition-duration: 0.08s; }
+.pregame-choices { display: flex; gap: 12px; max-width: 640px; margin: 0 auto; flex-wrap: wrap; }
 
 /* ---------------------------------------------------------- ESPN bracket */
 .bx-conf-titles { display: flex; justify-content: space-between; margin-bottom: 10px; }
@@ -846,15 +895,14 @@ h3.hub-subhead {
    bearing for understanding state — so it's safe to strip entirely here */
 @media (prefers-reduced-motion: reduce) {
   .btn, .mode-card, .franchise-card, .clutch-card, .tactic-options button,
-  .halftime-options button, .pregame-choices button, .player-row, .coach-row,
+  .strategy-card, .player-row, .coach-row,
   .hub-slot.selectable, .slot, .hub-slot, .theme-toggle-btn, .trivia-tier-card, .trivia-answer-btn {
     transition: none !important;
   }
   .btn:hover, .btn:active, .mode-card:hover, .mode-card:active,
   .franchise-card:hover, .franchise-card:active, .clutch-card:hover, .clutch-card:active,
   .tactic-options button:hover, .tactic-options button:active,
-  .halftime-options button:hover, .halftime-options button:active,
-  .pregame-choices button:hover, .pregame-choices button:active,
+  .strategy-card:hover, .strategy-card:active,
   .player-row:hover, .player-row:active, .coach-row:hover, .coach-row:active,
   .hub-slot.selectable:hover, .hub-slot.selectable:active, .theme-toggle-btn:hover, .theme-toggle-btn:active,
   .trivia-tier-card:hover, .trivia-tier-card:active, .trivia-answer-btn:hover, .trivia-answer-btn:active {

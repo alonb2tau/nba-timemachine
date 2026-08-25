@@ -339,8 +339,33 @@
         </div>
       </div>
 
-      <!-- bottom half: the full bracket, always visible, reference-weight -->
-      <div id="bracket" class="bracket"></div>
+      <!-- always-visible summary of YOUR run: round, series score, record — -->
+      <!-- the thing you actually want to check at a glance without parsing  -->
+      <!-- the whole bracket every time                                     -->
+      <div id="series-status" class="series-status hidden">
+        <div class="series-status-main">
+          <div class="series-status-round" id="series-status-round"></div>
+          <div id="series-status-score" class="series-status-score">
+            <span id="series-you-wins">0</span>
+            <span class="series-status-dash">&ndash;</span>
+            <span id="series-opp-wins">0</span>
+          </div>
+          <div class="series-status-opp" id="series-status-opp"></div>
+        </div>
+        <div class="series-status-stats">
+          <div class="series-stat"><span id="series-stat-record" class="series-stat-val">0-0</span><span class="series-stat-label">Playoff Record</span></div>
+          <div class="series-stat"><span id="series-stat-seed" class="series-stat-val">&mdash;</span><span class="series-stat-label">Your Seed</span></div>
+          <div class="series-stat"><span id="series-stat-regszn" class="series-stat-val">0-0</span><span class="series-stat-label">Regular Season</span></div>
+        </div>
+        <div id="series-status-extra" class="series-status-extra"></div>
+      </div>
+
+      <!-- the full bracket — reference material, collapsed by default now  -->
+      <!-- that the summary above covers what most people actually check   -->
+      <details id="bracket-details" class="bracket-details">
+        <summary class="bracket-summary">View Full Bracket</summary>
+        <div id="bracket" class="bracket"></div>
+      </details>
     </section>
 
     <!-- ============================= PHASE 5: SEASON RECAP ============================= -->
