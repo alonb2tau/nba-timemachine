@@ -29,29 +29,29 @@ const TACTIC_DEFS = {
   // roster underneath it is, so tactical choices matter for every team,
   // not just already-elite ones.
   shots: {
-    paint:    { srsDelta: 0.6,  varianceMult: 0.90, label: "Attack the paint" },
+    paint:    { srsDelta: 1.2,  varianceMult: 0.90, label: "Attack the paint" },
     balanced: { srsDelta: 0.0,  varianceMult: 1.00, label: "Balanced" },
-    three:    { srsDelta: -0.3, varianceMult: 1.25, label: "Fire from three" },
+    three:    { srsDelta: -0.6, varianceMult: 1.25, label: "Fire from three" },
   },
   scheme: {
-    man:      { srsDelta: 1.1,  label: "Lockdown man" },
+    man:      { srsDelta: 2.2,  label: "Lockdown man" },
     solid:    { srsDelta: 0.0,  label: "Solid" },
-    switch:   { srsDelta: -0.8, label: "Switch everything" },
+    switch:   { srsDelta: -1.6, label: "Switch everything" },
   },
   // ball movement: a motion offense is a little more efficient (the shot
   // it generates is a better one) at the cost of leaning on system over
   // star shot-creation; isolation-heavy leans the other way.
   offense: {
-    iso:      { srsDelta: 0.2, label: "Isolation-heavy" },
+    iso:      { srsDelta: 0.4, label: "Isolation-heavy" },
     balanced: { srsDelta: 0.0, label: "Balanced" },
-    motion:   { srsDelta: 0.4, label: "Motion offense" },
+    motion:   { srsDelta: 0.8, label: "Motion offense" },
   },
   // rebounding emphasis: crashing the boards trades a bit of transition
   // defense (opponent gets easier looks the other way) for second chances.
   boards: {
-    crash:    { srsDelta: 0.3,  label: "Crash the glass" },
+    crash:    { srsDelta: 0.6,  label: "Crash the glass" },
     balanced: { srsDelta: 0.0,  label: "Balanced" },
-    getback:  { srsDelta: -0.2, label: "Get back on defense" },
+    getback:  { srsDelta: -0.4, label: "Get back on defense" },
   },
   // bench usage: how much of the team's identity is the starting five vs.
   // the bench, this game — the same split squadRating()/squadStatLine()

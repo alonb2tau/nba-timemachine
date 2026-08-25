@@ -462,7 +462,7 @@ h3.hub-subhead {
 
 /* ---------------------------------------------------------- faces/logos */
 .face-wrap, .logo-wrap { display: inline-flex; border-radius: 50%; overflow: hidden; flex-shrink: 0; vertical-align: middle; }
-.face-img { object-fit: cover; border-radius: 50%; display: block; background: var(--line); }
+.face-img { object-fit: cover; object-position: center 18%; border-radius: 50%; display: block; background: var(--line); }
 .face-fallback {
   border-radius: 50%; display: flex; align-items: center; justify-content: center;
   color: #fff; font-weight: 700; font-family: "Oswald", sans-serif;
