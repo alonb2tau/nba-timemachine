@@ -260,10 +260,43 @@ function wireAppEvents() {
   $("new-run-btn").addEventListener("click", () => location.reload());
 }
 
+/** Scroll-triggered entrances for the landing hero and any other .reveal
+ * element — fires once per element, then stops observing it. Reduced-motion
+ * users get everything visible immediately via the CSS override instead. */
+function wireScrollReveal() {
+  const targets = document.querySelectorAll(".reveal");
+  if (!targets.length) return;
+  const io = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add("in");
+      obs.unobserve(entry.target);
+    });
+  }, { threshold: 0.15 });
+  targets.forEach(el => io.observe(el));
+}
+
+function wireTopbarCondense() {
+  const topbar = document.querySelector(".topbar");
+  if (!topbar) return;
+  window.addEventListener("scroll", () => {
+    topbar.classList.toggle("condensed", window.scrollY > 40);
+  }, { passive: true });
+}
+
+function wireLandingHero() {
+  const scrollToModes = () => $("mode-panel").scrollIntoView({ behavior: "smooth", block: "start" });
+  $("landing-cta-btn")?.addEventListener("click", scrollToModes);
+  $("landing-scroll-cue")?.addEventListener("click", scrollToModes);
+}
+
 async function boot() {
   wireAppEvents();
   wireDifficultyEvents();
   wirePhaseNav();
+  wireLandingHero();
+  wireScrollReveal();
+  wireTopbarCondense();
   await initFranchise();
   switchPhase("mode");
 }
