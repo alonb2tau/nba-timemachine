@@ -8,6 +8,9 @@
 
 const PHASE_ORDER = ["franchise", "draft", "hub", "season", "playoffs"];
 let currentPhase = "franchise";
+let DIFFICULTY = null;
+
+const DIFFICULTY_LABELS = { easy: "Easy", medium: "Medium", hard: "Hard", veryhard: "Very Hard" };
 
 function switchPhase(name) {
   currentPhase = name;
@@ -90,6 +93,40 @@ function recapClutchRow(c) {
   </div>`;
 }
 
+function lbRowHtml(e, isYou) {
+  return `<div class="lb-row ${isYou ? "you" : ""}">
+    <div class="lb-rank">${e.rank}</div>
+    <div class="lb-team">${esc(e.team_name)}</div>
+    <div class="lb-record">${e.wins}-${e.losses}</div>
+    <div class="lb-result">${esc(e.result_label)}</div>
+  </div>`;
+}
+
+async function renderLeaderboard() {
+  const section = $("recap-leaderboard-card");
+  if (!section) return;
+  section.classList.add("hidden");
+  if (!DIFFICULTY) return;
+  try {
+    const runId = getCurrentRunId();
+    const res = await fetch(`/api/leaderboard?difficulty=${encodeURIComponent(DIFFICULTY)}&run_id=${encodeURIComponent(runId || "")}`);
+    const data = await res.json();
+    if (!data.enabled || !data.top) return;
+
+    $("recap-leaderboard-title").textContent = `This Week — ${DIFFICULTY_LABELS[DIFFICULTY] || DIFFICULTY} Leaderboard`;
+    $("recap-leaderboard-rank").textContent = data.your_rank
+      ? `You ranked #${data.your_rank} of ${data.total_entries} this week.`
+      : `${data.total_entries} team${data.total_entries === 1 ? "" : "s"} on the board this week.`;
+
+    const rows = data.top.map(e => lbRowHtml(e, e.run_id === runId));
+    if (data.your_entry && data.your_rank > data.top.length) {
+      rows.push(`<div class="lb-gap">&#8942;</div>`, lbRowHtml(data.your_entry, true));
+    }
+    $("recap-leaderboard-rows").innerHTML = rows.join("") || `<div class="recap-empty">No completed runs on this difficulty yet this week.</div>`;
+    section.classList.remove("hidden");
+  } catch (e) { /* leaderboard is a bonus, never block the recap screen */ }
+}
+
 function finishRun(winnerSeed) {
   const wonIt = winnerSeed.isYou;
   const seed = seasonSeed();
@@ -154,6 +191,7 @@ function finishRun(winnerSeed) {
   setTimeout(() => {
     document.querySelectorAll(".phase").forEach(el => el.classList.add("hidden"));
     $("phase-end").classList.remove("hidden");
+    renderLeaderboard(); // fired after the delay above so the just-finished run has landed server-side
   }, 1200);
 }
 
@@ -161,6 +199,7 @@ function wireDifficultyEvents() {
   document.querySelectorAll(".mode-card[data-budget]").forEach(btn => {
     btn.addEventListener("click", () => {
       BUDGET = Number(btn.dataset.budget);
+      DIFFICULTY = btn.dataset.diff;
       startNewRun(); // a fresh game starts here — give it its own telemetry row
       sendStatEvent("difficulty_chosen", { difficulty: btn.dataset.diff, budget: BUDGET });
       switchPhase("franchise");

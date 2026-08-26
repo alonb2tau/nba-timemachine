@@ -33,6 +33,10 @@ function startNewRun() {
   return currentRunId;
 }
 
+function getCurrentRunId() {
+  return currentRunId;
+}
+
 function sendStatEvent(event, payload) {
   if (!currentRunId) startNewRun(); // defensive: a caller forgot to start a run explicitly
   try {

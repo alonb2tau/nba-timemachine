@@ -135,3 +135,91 @@ def summarize_runs(runs: list[dict]) -> dict:
         ],
         "runs_by_day": runs_by_day,
     }
+
+
+# ------------------------------------------------------------- leaderboard --
+
+# How far a run got, worst to best. Ranking is strictly tiered: reaching a
+# higher tier always outranks every run in a lower tier, no matter the
+# regular-season record — a 45-37 champion outranks a 79-3 team that lost
+# in round 1. Regular-season wins only break ties *within* the same tier.
+TIER_LABELS = [
+    "Missed the Playoffs",   # 0
+    "Lost in the Play-In",   # 1
+    "Lost in Round 1",       # 2
+    "Lost in the Conference Semifinals",  # 3
+    "Lost in the Conference Finals",      # 4
+    "Lost in the NBA Finals",             # 5
+    "NBA Champion",          # 6
+]
+
+
+def _tier_of(playoff_result: str | None) -> int:
+    if not playoff_result or playoff_result == "missed_playin":
+        return 0
+    if playoff_result == "champion":
+        return 6
+    if "NBA Finals" in playoff_result:
+        return 5
+    if "Conference Finals" in playoff_result:
+        return 4
+    if "Semifinals" in playoff_result:
+        return 3
+    if "Round 1" in playoff_result:
+        return 2
+    if "Play-In" in playoff_result:
+        return 1
+    return 0
+
+
+def _iso_week(created_at: str):
+    from datetime import datetime
+    dt = datetime.fromisoformat(created_at.replace("Z", "+00:00"))
+    year, week, _ = dt.isocalendar()
+    return (year, week)
+
+
+def leaderboard_for(runs: list[dict], difficulty: str, run_id: str | None = None) -> dict:
+    """This week's ranking for one difficulty. Tiered strictly by playoff
+    depth reached (see _tier_of); wins/losses only break ties inside a
+    tier — so the displayed score is deliberately spaced (tier * 1000) so
+    no regular-season record can ever bleed a run into the tier above it."""
+    from datetime import datetime, timezone
+    this_week = _iso_week(datetime.now(timezone.utc).isoformat())
+
+    entries = []
+    for r in runs:
+        if not r.get("season_complete"):
+            continue
+        if (r.get("difficulty") or "unknown") != difficulty:
+            continue
+        created = r.get("created_at")
+        if not created or _iso_week(created) != this_week:
+            continue
+        wins = r.get("wins") or 0
+        losses = r.get("losses") or 0
+        tier = _tier_of(r.get("playoff_result"))
+        entries.append({
+            "run_id": r.get("run_id"),
+            "team_name": r.get("franchise_name") or "Unnamed Team",
+            "wins": wins,
+            "losses": losses,
+            "tier": tier,
+            "result_label": TIER_LABELS[tier],
+            "score": tier * 1000 + 300 + wins * 3 - losses,
+        })
+
+    entries.sort(key=lambda e: -e["score"])
+    for i, e in enumerate(entries):
+        e["rank"] = i + 1
+
+    your_entry = next((e for e in entries if run_id and e["run_id"] == run_id), None)
+
+    return {
+        "difficulty": difficulty,
+        "week": f"{this_week[0]}-W{this_week[1]:02d}",
+        "total_entries": len(entries),
+        "top": entries[:20],
+        "your_rank": your_entry["rank"] if your_entry else None,
+        "your_entry": your_entry,
+    }

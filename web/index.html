@@ -44,19 +44,23 @@
         <p class="mode-intro">Draft a dream roster from any of 16 real NBA seasons, then coach it through an 82-game season and a playoff run.</p>
         <h2>Choose your difficulty</h2>
         <div class="mode-options">
-          <button id="diff-easy-btn" class="mode-card" data-budget="115" data-diff="easy">
+          <button id="diff-easy-btn" class="mode-card mode-card-easy" data-budget="115" data-diff="easy">
+            <div class="mode-card-icon">🌱</div>
             <div class="mode-card-title">Easy</div>
             <div class="mode-card-sub">€115M draft budget — build a stacked roster.</div>
           </button>
-          <button id="diff-medium-btn" class="mode-card" data-budget="100" data-diff="medium">
+          <button id="diff-medium-btn" class="mode-card mode-card-medium" data-budget="100" data-diff="medium">
+            <div class="mode-card-icon">⚖️</div>
             <div class="mode-card-title">Medium</div>
             <div class="mode-card-sub">€100M draft budget — the standard challenge.</div>
           </button>
-          <button id="diff-hard-btn" class="mode-card" data-budget="90" data-diff="hard">
+          <button id="diff-hard-btn" class="mode-card mode-card-hard" data-budget="90" data-diff="hard">
+            <div class="mode-card-icon">🔥</div>
             <div class="mode-card-title">Hard</div>
             <div class="mode-card-sub">€90M draft budget — every pick has to count.</div>
           </button>
-          <button id="diff-veryhard-btn" class="mode-card" data-budget="80" data-diff="veryhard">
+          <button id="diff-veryhard-btn" class="mode-card mode-card-veryhard" data-budget="80" data-diff="veryhard">
+            <div class="mode-card-icon">🔥</div>
             <div class="mode-card-title">Very Hard</div>
             <div class="mode-card-sub">€80M draft budget — you'll be the underdog all season.</div>
           </button>
@@ -395,6 +399,18 @@
         <section class="recap-card recap-card-wide">
           <h2>Front Office</h2>
           <div id="recap-front-office" class="recap-front-office"></div>
+        </section>
+
+        <section id="recap-leaderboard-card" class="recap-card recap-card-wide hidden">
+          <h2 id="recap-leaderboard-title">This Week's Leaderboard</h2>
+          <p id="recap-leaderboard-rank" class="recap-leaderboard-rank"></p>
+          <div class="lb-header">
+            <div class="lb-rank">#</div>
+            <div class="lb-team">Team</div>
+            <div class="lb-record">Record</div>
+            <div class="lb-result">Result</div>
+          </div>
+          <div id="recap-leaderboard-rows" class="lb-rows"></div>
         </section>
       </div>
 

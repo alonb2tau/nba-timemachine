@@ -128,6 +128,16 @@ async def post_stat_event(body: StatEvent, request: Request):
     return {"ok": True}
 
 
+@app.get("/api/leaderboard")
+async def leaderboard(difficulty: str, run_id: str | None = None):
+    if not stats.ENABLED:
+        return {"enabled": False}
+    runs = await stats.fetch_all_runs()
+    data = stats.leaderboard_for(runs, difficulty, run_id)
+    data["enabled"] = True
+    return data
+
+
 @app.get("/api/stats/summary")
 async def stats_summary(x_admin_password: str | None = Header(default=None)):
     if not stats.ADMIN_PASSWORD or x_admin_password != stats.ADMIN_PASSWORD:
