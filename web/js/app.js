@@ -8,6 +8,7 @@
 
 const PHASE_ORDER = ["franchise", "draft", "hub", "season", "playoffs"];
 let currentPhase = "franchise";
+let furthestPhaseIdx = 0; // how far into PHASE_ORDER this run has actually reached — the ceiling for free nav-bar jumps
 let DIFFICULTY = null;
 
 const DIFFICULTY_LABELS = { easy: "Easy", medium: "Medium", hard: "Hard", veryhard: "Very Hard" };
@@ -18,12 +19,33 @@ function switchPhase(name) {
   $(`phase-${name}`).classList.remove("hidden");
 
   const idx = PHASE_ORDER.indexOf(name);
+  if (idx > furthestPhaseIdx) furthestPhaseIdx = idx;
   document.querySelectorAll(".phase-step").forEach(el => {
     const stepIdx = PHASE_ORDER.indexOf(el.dataset.phase);
     el.classList.toggle("active", el.dataset.phase === name);
     el.classList.toggle("done", stepIdx >= 0 && idx >= 0 && stepIdx < idx);
+    el.classList.toggle("navigable", stepIdx >= 0 && stepIdx <= furthestPhaseIdx);
   });
   refreshTopbar();
+}
+
+/** The topbar phase labels double as free back/forward navigation — jump
+ * to any phase you've already reached, from anywhere. Only re-renders the
+ * destination (switchPhase never mutates game state), so hopping back to
+ * Season mid-Playoffs is just "look at it again," not "redo it." */
+function goToPhase(name) {
+  const idx = PHASE_ORDER.indexOf(name);
+  if (idx < 0 || idx > furthestPhaseIdx) return;
+  switchPhase(name);
+  if (name === "hub" && HUB) renderHub();
+  else if (name === "season" && SEASON) renderSeason();
+  else if (name === "playoffs" && PLAYOFFS) renderPlayoffs();
+}
+
+function wirePhaseNav() {
+  document.querySelectorAll(".phase-step").forEach(el => {
+    bindActivate(el, () => goToPhase(el.dataset.phase));
+  });
 }
 
 function refreshTopbar() {
@@ -209,6 +231,9 @@ function wireDifficultyEvents() {
 
 function wireAppEvents() {
   $("goto-hub-btn").addEventListener("click", () => {
+    // revisiting the (already-complete) draft screen via the nav bar — never
+    // re-init the hub, that would silently swap out the live team mid-season
+    if (HUB) { switchPhase("hub"); renderHub(); return; }
     if (!draftIsComplete()) return;
     initHub(getDraftedSquad());
     wireSeasonEvents();
@@ -218,17 +243,18 @@ function wireAppEvents() {
     switchPhase("trivia");
   });
   $("start-season-btn").addEventListener("click", () => {
-    const btn = $("start-season-btn");
-    if (btn.dataset.mode === "resume") {
-      btn.dataset.mode = "";
+    // same idea — a season already in progress (or done) just gets shown,
+    // never re-simulated from scratch
+    if (SEASON) {
+      $("start-season-btn").dataset.mode = "";
       $("hub-checkpoint-banner").classList.add("hidden");
       switchPhase("season");
       renderSeason();
-    } else {
-      startSeason();
-      sendStatEvent("season_started", {});
-      switchPhase("season");
+      return;
     }
+    startSeason();
+    sendStatEvent("season_started", {});
+    switchPhase("season");
   });
   $("checkpoint-trade-btn").addEventListener("click", offerOneTrade);
   $("new-run-btn").addEventListener("click", () => location.reload());
@@ -237,6 +263,7 @@ function wireAppEvents() {
 async function boot() {
   wireAppEvents();
   wireDifficultyEvents();
+  wirePhaseNav();
   await initFranchise();
   switchPhase("mode");
 }

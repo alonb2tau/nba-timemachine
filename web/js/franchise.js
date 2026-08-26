@@ -24,6 +24,9 @@ function selectFranchise(code) {
 }
 
 function confirmFranchise() {
+  // revisiting the franchise screen via the nav bar after the draft already
+  // started — never re-run this, it would reset the whole draft/roster
+  if (FRANCHISE) { switchPhase(HUB ? "hub" : "draft"); return; }
   const selected = franchiseOptions().find(o => o.code === franchiseSelectedCode);
   if (!selected) return;
   const name = $("franchise-name-input").value.trim() || selected.name;

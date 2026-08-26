@@ -142,6 +142,17 @@ h1, h2, h3, .headline {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--red);
 }
 .phase-step.done { color: #b7bac1; }
+.phase-step.navigable { cursor: pointer; transition: color 0.12s; }
+.phase-step.navigable:hover { color: #fff; }
+.phase-step:not(.navigable) { cursor: default; }
+
+.site-watermark {
+  position: fixed; left: 10px; bottom: 8px; z-index: 40;
+  font-family: "Oswald", sans-serif; font-size: 10px; letter-spacing: 0.03em;
+  color: var(--ink-faint); opacity: 0.55; pointer-events: none;
+  background: var(--bg); padding: 2px 6px 2px 0;
+}
+@media (max-width: 720px) { .site-watermark { font-size: 9px; bottom: 6px; } }
 
 .topbar-stat { font-family: "Oswald", sans-serif; font-size: 15px; font-weight: 600; color: #fff; letter-spacing: 0.02em; }
 .topbar-stat .accent { color: #ff4d5e; }
@@ -314,7 +325,6 @@ h3.hub-subhead {
 @media (max-width: 720px) {
   .squad-stats-grid { grid-template-columns: repeat(2, 1fr); }
   .player-list-head { display: none; }
-  .player-row { flex-wrap: wrap; }
 }
 
 /* -------------------------------------------------------------- hub */
@@ -788,7 +798,14 @@ h3.hub-subhead {
 .recap-timeline-opp { color: var(--ink-soft); flex: 1; }
 .recap-timeline-score { font-family: "Oswald", sans-serif; font-weight: 700; }
 
-.recap-leaderboard-rank { font-size: 13px; color: var(--gold-dark); font-weight: 600; margin: -6px 0 14px; }
+.recap-leaderboard-card {
+  background: linear-gradient(165deg, var(--panel) 0%, var(--gold-tint) 220%);
+  border: 1.5px solid var(--gold-tint-border); border-radius: var(--radius-lg);
+  padding: 22px 24px; margin: 20px 0; box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+}
+.recap-leaderboard-card h2 { border-left-color: var(--gold); margin-bottom: 4px; }
+.recap-leaderboard-rank { font-size: 14px; color: var(--gold-dark); font-weight: 700; margin: 0 0 16px; }
+.recap-leaderboard-card .lb-header, .recap-leaderboard-card .lb-row { font-size: 14px; }
 .lb-header, .lb-row {
   display: grid; grid-template-columns: 34px 1fr 70px 200px; gap: 10px; align-items: center;
 }
@@ -889,9 +906,42 @@ h3.hub-subhead {
   .draft-panel, .hub-tactics, .hub-roster, .standings-panel, .game-panel,
   .next-game-card, .end-card, .coach-panel { padding: 14px; }
 
-  .player-row { align-items: flex-start; }
-  .pr-stats { flex-basis: 100%; justify-content: space-between; order: 3; margin-top: 8px; }
-  .pr-right { order: 2; }
+  /* draft screen: the 11 open roster slots used to take the whole screen
+     before the actual pick list even came into view — shrink them to a
+     compact 5-wide strip of chips (name only, no meta line) so the draw
+     card and player list are reachable without a long scroll first. */
+  .roster-board h2 { margin-bottom: 6px; }
+  #starters, #bench { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  #starters .slot, #bench .slot, #coach-slot .slot {
+    min-height: 46px; padding: 4px 3px; gap: 0; border-radius: var(--radius-sm);
+  }
+  #starters .player-meta, #bench .player-meta, #coach-slot .player-meta { display: none; }
+  #starters .player-name, #bench .player-name, #coach-slot .player-name {
+    font-size: 9px; margin-top: 2px; line-height: 1.15;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  #starters .pos-tag, #bench .pos-tag, #coach-slot .pos-tag { font-size: 8px; padding: 1px 3px; }
+  #starters .slot-head, #bench .slot-head, #coach-slot .slot-head { margin-bottom: 0; }
+  #starters .face-wrap, #bench .face-wrap, #coach-slot .face-wrap,
+  #starters .face-img, #bench .face-img, #coach-slot .face-img,
+  #starters .face-fallback, #bench .face-fallback, #coach-slot .face-fallback {
+    width: 18px !important; height: 18px !important; font-size: 8px !important;
+  }
+
+  /* draft screen: the pick list rows were tall enough (173px+) that only
+     one or two players were ever visible at once — condense to a single
+     compact line (drop the 3 least decision-relevant stats, keep
+     PTS/REB/AST) so several players are visible without scrolling. */
+  .player-list { max-height: 54vh; }
+  .player-row { flex-wrap: nowrap; align-items: center; padding: 8px 10px; gap: 8px; }
+  .player-row .face-wrap, .player-row .face-img, .player-row .face-fallback { width: 30px !important; height: 30px !important; }
+  .pr-id { flex: 1 1 auto; min-width: 0; }
+  .pr-stats { flex: 0 0 auto; gap: 6px; }
+  .pr-stats .pr-stat:nth-child(n+4) { display: none; }
+  .pr-stat { min-width: 24px; }
+  .pr-stat-val { font-size: 12px; }
+  .pr-right { flex: 0 0 auto; }
+  .pr-name .coach-tag { display: none; } /* "Head Coach" label — redundant on mobile once the row's RECORD/SRS stats already say so, and it was crowding the name off the edge */
 
   .franchise-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); }
   .franchise-intro-row { flex-direction: column; }

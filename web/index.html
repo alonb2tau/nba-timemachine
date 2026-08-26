@@ -36,6 +36,8 @@
     </div>
   </header>
 
+  <div class="site-watermark">made by Alon Bourstein</div>
+
   <main id="app">
 
     <!-- ============================= PHASE: DIFFICULTY SELECT ============================= -->
@@ -380,6 +382,18 @@
         <div id="recap-subtitle" class="recap-subtitle"></div>
       </div>
 
+      <section id="recap-leaderboard-card" class="recap-leaderboard-card hidden">
+        <h2 id="recap-leaderboard-title">This Week's Leaderboard</h2>
+        <p id="recap-leaderboard-rank" class="recap-leaderboard-rank"></p>
+        <div class="lb-header">
+          <div class="lb-rank">#</div>
+          <div class="lb-team">Team</div>
+          <div class="lb-record">Record</div>
+          <div class="lb-result">Result</div>
+        </div>
+        <div id="recap-leaderboard-rows" class="lb-rows"></div>
+      </section>
+
       <div class="recap-grid">
         <section class="recap-card">
           <h2>Season Highlights</h2>
@@ -399,18 +413,6 @@
         <section class="recap-card recap-card-wide">
           <h2>Front Office</h2>
           <div id="recap-front-office" class="recap-front-office"></div>
-        </section>
-
-        <section id="recap-leaderboard-card" class="recap-card recap-card-wide hidden">
-          <h2 id="recap-leaderboard-title">This Week's Leaderboard</h2>
-          <p id="recap-leaderboard-rank" class="recap-leaderboard-rank"></p>
-          <div class="lb-header">
-            <div class="lb-rank">#</div>
-            <div class="lb-team">Team</div>
-            <div class="lb-record">Record</div>
-            <div class="lb-result">Result</div>
-          </div>
-          <div id="recap-leaderboard-rows" class="lb-rows"></div>
         </section>
       </div>
 
