@@ -17,6 +17,10 @@ function switchPhase(name) {
   currentPhase = name;
   document.querySelectorAll(".phase").forEach(el => el.classList.add("hidden"));
   $(`phase-${name}`).classList.remove("hidden");
+  // every phase starts at its own top — without this, scroll position carries
+  // over from whatever phase you were just on (e.g. scrolled past the landing
+  // hero) and the next phase opens already scrolled past its first field
+  window.scrollTo(0, 0);
 
   const idx = PHASE_ORDER.indexOf(name);
   if (idx > furthestPhaseIdx) furthestPhaseIdx = idx;
@@ -168,6 +172,7 @@ function finishRun(winnerSeed) {
 
   $("recap-banner").classList.toggle("champion", wonIt);
   $("recap-trophy").innerHTML = wonIt ? TROPHY_SVG : "";
+  $("recap-trophy").classList.toggle("hidden", !wonIt);
   $("recap-title").textContent = wonIt ? `${FRANCHISE.name} — NBA Champions` : `${FRANCHISE.name} — ${howFarText(false)}`;
   $("recap-subtitle").textContent = wonIt
     ? `A ${SEASON.wins}-${SEASON.losses} season ends with a championship.`
